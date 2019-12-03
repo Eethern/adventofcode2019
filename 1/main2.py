@@ -3,7 +3,10 @@ import math
 
 
 def massToFuel(mass):
-    return math.floor(float(mass) / 3) - 2
+    fuel = math.floor(float(mass) / 3) - 2
+    if (fuel <= 0):
+        return 0
+    return fuel + massToFuel(fuel)
 
 
 def calcTotalFuel(masses):
