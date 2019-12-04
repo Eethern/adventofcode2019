@@ -10,6 +10,18 @@ def manhattanDistance(x, y):
     return abs(x) + abs(y)
 
 
+def calcMinDistance(junctions):
+    distance = -1
+    for pos in junctions:
+        (x, y) = pos
+        manHat = manhattanDistance(x, y)
+        if (distance == -1):
+            distance = manHat
+        else:
+            distance = min(distance, manHat)
+    return distance
+
+
 def calcNextPoint(word, startX, startY):
     direction = word[0]
     value = int(word[1:])
@@ -116,15 +128,8 @@ def main():
 
     # Delete the (0, 0) junction
     junctions.discard((0, 0))
+    distance = calcMinDistance(junctions)
 
-    distance = -1
-    for pos in junctions:
-        (x, y) = pos
-        manHat = manhattanDistance(x, y)
-        if (distance == -1):
-            distance = manHat
-        else:
-            distance = min(distance, manHat)
 
     print("Shortest distance: {distance}".format(distance=distance))
     pyglet.app.run()
