@@ -58,6 +58,7 @@ def drawPath(path, r, g, b):
         glVertex2f(x,y)
     glEnd()
 
+
 @window.event
 def on_draw():
     filePath = sys.argv[1]
@@ -93,47 +94,56 @@ def main():
 
     # Store junctions in set
     junctions = set([])
+
     x = 0
     y = 0
-
     for word in path1:
+        # print(word)
         (nextX, nextY, step) = calcNextPoint(word, x, y)
-        for xpos in range(x, nextX+step, step):
+        for xpos in range(x + step, nextX, step):
             coords.add((xpos, y))
-            # print("Adding x: {xpos}".format(xpos=xpos))
+            # print("Adding ({x},{y})".format(x=xpos, y=y))
         x = nextX
 
-        for ypos in range(y, nextY+step, step):
+        for ypos in range(y + step, nextY, step):
             coords.add((x, ypos))
-            # print("Adding y: {ypos}".format(ypos=ypos))
+            # print("Adding ({x},{y})".format(x=x, y=ypos))
         y = nextY
 
+
+    # print("WIRE 2")
     x = 0
     y = 0
     for word in path2:
+        # print(word)
         (nextX, nextY, step) = calcNextPoint(word, x, y)
-        for xpos in range(x, nextX+step, step):
-            # print("Adding x: {xpos}".format(xpos=xpos))
+        for xpos in range(x+step, nextX, step):
+            # print("Checking ({x},{y})".format(x=xpos, y=y))
             if ((xpos, y)) in coords:
+                # print("Hit")
                 junctions.add((xpos, y))
                 coords.remove((xpos, y))
             x = nextX
 
-        for ypos in range(y, nextY+step, step):
-            # print("Adding y: {ypos}".format(ypos=ypos))
+        for ypos in range(y+step, nextY, step):
+            # print("Checking ({x},{y})".format(x=x, y=ypos))
             if ((x, ypos)) in coords:
+                # print("Hit")
                 junctions.add((x, ypos))
                 coords.remove((x, ypos))
             y = nextY
 
+
     # Delete the (0, 0) junction
     junctions.discard((0, 0))
+
+    # Calc distance
     distance = calcMinDistance(junctions)
 
-
     print("Shortest distance: {distance}".format(distance=distance))
-    pyglet.app.run()
 
+    # Optional, draw map
+    pyglet.app.run()
 
 if (__name__ == '__main__'):
     main()
