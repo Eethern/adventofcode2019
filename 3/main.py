@@ -98,37 +98,37 @@ def main():
     x = 0
     y = 0
     for word in path1:
-        # print(word)
+        print(word)
         (nextX, nextY, step) = calcNextPoint(word, x, y)
-        for xpos in range(x + step, nextX, step):
+        for xpos in range(x + step, nextX+step, step):
             coords.add((xpos, y))
-            # print("Adding ({x},{y})".format(x=xpos, y=y))
+            print("Adding ({x},{y})".format(x=xpos, y=y))
         x = nextX
 
-        for ypos in range(y + step, nextY, step):
+        for ypos in range(y + step, nextY+step, step):
             coords.add((x, ypos))
-            # print("Adding ({x},{y})".format(x=x, y=ypos))
+            print("Adding ({x},{y})".format(x=x, y=ypos))
         y = nextY
 
 
-    # print("WIRE 2")
+    print("WIRE 2")
     x = 0
     y = 0
     for word in path2:
-        # print(word)
+        print(word)
         (nextX, nextY, step) = calcNextPoint(word, x, y)
-        for xpos in range(x+step, nextX, step):
-            # print("Checking ({x},{y})".format(x=xpos, y=y))
+        for xpos in range(x+step, nextX+step, step):
+            print("Checking ({x},{y})".format(x=xpos, y=y))
             if ((xpos, y)) in coords:
-                # print("Hit")
+                print("Hit")
                 junctions.add((xpos, y))
                 coords.remove((xpos, y))
             x = nextX
 
-        for ypos in range(y+step, nextY, step):
-            # print("Checking ({x},{y})".format(x=x, y=ypos))
+        for ypos in range(y+step, nextY+step, step):
+            print("Checking ({x},{y})".format(x=x, y=ypos))
             if ((x, ypos)) in coords:
-                # print("Hit")
+                print("Hit")
                 junctions.add((x, ypos))
                 coords.remove((x, ypos))
             y = nextY
@@ -140,6 +140,7 @@ def main():
     # Calc distance
     distance = calcMinDistance(junctions)
 
+    print(junctions)
     print("Shortest distance: {distance}".format(distance=distance))
 
     # Optional, draw map
