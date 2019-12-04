@@ -1,7 +1,7 @@
-with open(r'input.txt', 'r') as f:
-    raw_input = f.read()
+import sys
 
 
+# Moves along wire, counting steps and storing positions
 def traverse_wire(wire):
     # Dictionary to store wire informatiosn
     wire_dist = {}
@@ -10,29 +10,46 @@ def traverse_wire(wire):
     x, y, stepCount = 0, 0, 0
     for vec in wire:
         for _ in range(int(vec[1:])):
-            dir = directions[vec[0]]
-            x += dir[0]
-            y += dir[1]
+            direction = directions[vec[0]]
+            x += direction[0]
+            y += direction[1]
             stepCount += 1
             wire_dist[(x, y)] = stepCount
     return wire_dist
 
 
-def solutions(raw_input):
-    wires = [x.split(',') for x in raw_input.strip().split('\n')]
+def solver(wire1, wire2):
+    # Traverse wires
+    wire_one = traverse_wire(wire1)
+    wire_two = traverse_wire(wire2)
 
-    wire_one = traverse_wire(wires[0])
-    wire_two = traverse_wire(wires[1])
-
+    # Calculate crossings
     crossings = wire_one.keys() & wire_two.keys()
 
     fewest_steps = min(crossings, key=lambda x: wire_one[x] + wire_two[x])
     steps = wire_one[fewest_steps] + wire_two[fewest_steps]
 
-    closest = min([intersection for intersection in crossings], key=lambda x: abs(x[0]) + abs(x[1]))
+    closest = min([intersection for intersection in crossings],
+                  key=lambda x: abs(x[0]) + abs(x[1]))
+
+    # Manhattan distance
     distance = abs(closest[0]) + abs(closest[1])
 
     return ('task 1', distance, 'task 2', steps)
 
 
-print(solutions(raw_input))
+def main():
+    # Open file
+    f = open(sys.argv[1], 'r')
+    raw_data = f.read().rstrip().split('\n')
+    f.close()
+
+    raw_wire1 = raw_data[0].split(',')
+    raw_wire2 = raw_data[1].split(',')
+
+    solver(raw_wire1, raw_wire2)
+    print(solver(raw_wire1, raw_wire2))
+
+
+if (__name__ == '__main__'):
+    main()
