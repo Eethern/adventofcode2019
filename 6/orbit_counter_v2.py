@@ -42,7 +42,6 @@ def planetsToCOM(universe, start):
         currentPlanet = currentPlanet.parent
         parents.append(currentPlanet)
 
-    print([planet.name for planet in parents])
     return parents
 
 
