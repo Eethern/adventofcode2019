@@ -1,123 +1,123 @@
-import sys
 from enum import Enum
 
 
 class Opcodes(Enum):
-    ADD = '01'  # Add
-    MUL = '02'  # Multiply
-    INP = '03'  # Input
-    OUT = '04'  # Output
-    JIT = '05'  # Jump if true
-    JIF = '06'  # Jump if false
-    SLE = '07'  # Store less than
-    SEQ = '08'  # store equal
-    HALT = '99'  # exit
+    ADD = 1  # Add
+    MUL = 2  # Multiply
+    INP = 3  # Input
+    OUT = 4  # Output
+    JIT = 5  # Jump if true
+    JIF = 6  # Jump if false
+    SLE = 7  # Store less than
+    SEQ = 8  # store equal
+    HALT = 99  # exit
+
+
+# Operation, Parameter count
+def opInfo():
+    return {
+        1: (Opcodes.ADD, 3),
+        2: (Opcodes.MUL, 3),
+        3: (Opcodes.INP, 1),
+        4: (Opcodes.OUT, 1),
+        5: (Opcodes.JIT, 2),
+        6: (Opcodes.JIF, 2),
+        7: (Opcodes.SLE, 3),
+        8: (Opcodes.SEQ, 3),
+        99: (Opcodes.HALT, 0)
+    }
 
 
 class Modes(Enum):
-    ADDR = '0'
-    IM = '1'
+    ADDR = 0
+    IM = 1
 
 
 def parseOperation(opcode):
-    # Extend trailin zeroes
+    # Lookup table
+    opLookup = opInfo()
+
+    # Extend trailing zeroes
     parse = opcode
     for _ in range(5 - len(opcode)):
         parse = '0' + parse
 
     # Read chars from right to left
-    op = Opcodes(parse[-2:])
+    op = opLookup[int(parse[-2:])]
     parse = parse[:-2]
-    parse = parse[::-1]
-    modes = [Modes(x) for x in parse]
+    modes = [Modes(int(x)) for x in parse]
 
     print(op, modes)
     return (op, modes)
 
 
 def parseMode(mode, val, mem):
-    print(mode, val)
     if mode is Modes.ADDR:
         return int(mem[int(val)])
     else:
         return int(val)
 
 
-def executeOperation(inputVal, mem, memPointer, opInfo):
+def executeOperation(inputVal, mem, pc, opInfo):
     # Get op and modes
-    op = opInfo[0]
+    op, incr = opInfo[0]
     modes = opInfo[1]
 
+    params = []
+    for index, _ in enumerate(range(incr)):
+        if index is not incr:
+            params.append(parseMode(modes.pop(), mem[pc + index + 1], mem))
+
+    # Dest (never immediate, so don't parseMode)
+    dest = int(mem[pc+incr])
+
     if op is Opcodes.ADD:
-        param1 = parseMode(modes[0], mem[memPointer + 1], mem)
-        param2 = parseMode(modes[1], mem[memPointer + 2], mem)
-        dest = int(mem[memPointer + 3])
-        mem[dest] = str(param1 + param2)
-        return 4
+        mem[dest] = str(params[0] + params[1])
 
     elif op is Opcodes.MUL:
-        param1 = parseMode(modes[0], mem[memPointer + 1], mem)
-        param2 = parseMode(modes[1], mem[memPointer + 2], mem)
-        dest = int(mem[memPointer + 3])
-        mem[dest] = str(param1 * param2)
-        return 4
+        mem[dest] = str(params[0] * params[1])
 
     elif op is Opcodes.INP:
-        dest = mem[memPointer + 1]
-        mem[int(dest)] = inputVal
-        return 2
+        mem[dest] = inputVal
 
     elif op is Opcodes.OUT:
-        param1 = parseMode(modes[0], mem[memPointer + 1], mem)
-        print(param1)
-        return 2
+        print(params[0])
 
     elif op is Opcodes.JIT:
-        param1 = parseMode(modes[0], mem[memPointer + 1], mem)
-        param2 = parseMode(modes[1], mem[memPointer + 2], mem)
-        if (param1) != 0:
-            return param2 - memPointer
+        if (params[0]) != 0:
+            return params[1] - pc
         else:
             return 3
 
     elif op is Opcodes.JIF:
-        param1 = parseMode(modes[0], mem[memPointer + 1], mem)
-        param2 = parseMode(modes[1], mem[memPointer + 2], mem)
-        if param1 == 0:
-            return param2 - memPointer
+        if params[0] == 0:
+            return params[1] - pc
         else:
             return 3
 
     elif op is Opcodes.SLE:
-        param1 = parseMode(modes[0], mem[memPointer + 1], mem)
-        param2 = parseMode(modes[1], mem[memPointer + 2], mem)
-        dest = int(mem[memPointer + 3])
-        if param1 < param2:
+        if params[0] < params[1]:
             mem[dest] = str(1)
         else:
             mem[dest] = str(0)
-        return 4
 
     elif op is Opcodes.SEQ:
-        param1 = parseMode(modes[0], mem[memPointer + 1], mem)
-        param2 = parseMode(modes[1], mem[memPointer + 2], mem)
-        dest = int(mem[memPointer + 3])
-        if param1 == param2:
+        if params[0] == params[1]:
             mem[dest] = str(1)
         else:
             mem[dest] = str(0)
-        return 4
     else:
         print("Op HALT = '99', exiting")
-        return 1
+
+    return incr + 1  # Include operator
 
 
 def executeIntCode(mem, inputVal):
-    instrPointer = 0
+    pc = 0
 
-    while(instrPointer < len(mem)):
-        opInfo = parseOperation(mem[instrPointer])
-        instrPointer += executeOperation(inputVal, mem, instrPointer, opInfo)
+    while True:
+        opInfo = parseOperation(mem[pc])
+        pc += executeOperation(inputVal, mem, pc, opInfo)
 
 
 def main():
