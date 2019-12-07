@@ -1,5 +1,5 @@
 from enum import Enum
-
+import time
 
 class Opcodes(Enum):
     ADD = 1  # Add
@@ -47,7 +47,7 @@ def parseOperation(opcode):
     parse = parse[:-2]
     modes = [Modes(int(x)) for x in parse]
 
-    # print(op, modes)
+    print(op[0].name, [el.name for el in modes])
     return (op, modes)
 
 
@@ -84,19 +84,15 @@ def executeOperation(inputValues, mem, pc, opInfo):
         return (incr + 1, "INPUT", "")
 
     elif op is Opcodes.OUT:
-        return (1, "OUT", params[0])
+        return (incr + 1, "OUT", params[0])
 
     elif op is Opcodes.JIT:
         if (params[0]) != 0:
             return (params[1] - pc, "", "")
-        else:
-            return (3, "", "")
 
     elif op is Opcodes.JIF:
         if params[0] == 0:
             return (params[1] - pc, "", "")
-        else:
-            return (3, "", "")
 
     elif op is Opcodes.SLE:
         if params[0] < params[1]:
@@ -111,20 +107,21 @@ def executeOperation(inputValues, mem, pc, opInfo):
             mem[dest] = str(0)
     else:
         print("Op HALT = '99', exiting")
+        return (incr + 1, "HALT", "")
 
     return (incr + 1, "", "")  # Include operator
 
 
-def executeIntCode(mem, inputVal):
-    pc = 0
+def executeIntCode(mem, inputVal, pc):
 
     output = ""
     while True:
         opInfo = parseOperation(mem[pc])
         (incr, output, opt) = executeOperation(inputVal, mem, pc, opInfo)
+        pc += incr
         if output == "INPUT":
             del inputVal[0]
         if output == "OUT":
-            return opt
-
-        pc += incr
+            return (opt, pc)
+        if output == "HALT":
+            return ("HALT", pc)

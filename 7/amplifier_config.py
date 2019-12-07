@@ -1,34 +1,57 @@
 from intcode_machine import executeIntCode
-import time
 
 
 class Amplifier:
     def __init__(self, mem):
-        self.mem = mem
+        self.mem = mem.copy()
+        self.pc = 0
 
     def resetMemory(self, mem):
-        self.mem = mem
+        self.mem = mem.copy()
+        self.pc = 0
 
 
 def runAmpProgram(amp, inputs):
-    return executeIntCode(amp.mem, inputs)
+    (cmd, pc) = executeIntCode(amp.mem, inputs, amp.pc)
+    amp.pc = pc
+    return cmd
 
 
-def tryPhaseCombination(amps, phases):
-    # Reverse phase list
+def tryPhaseCombination(amps, phases, mode):
+    # Reverse phase list (For usage of pop())
     phases = phases[::-1]
     # First input is 0
     prevOutput = 0
+    # Number of fb loop iterations
+    iteration = 0
     # Run amps programs
-    for index, amp in enumerate(amps):
-        phase = phases.pop()
-        # print("Trying phase {p} on amp {a} with input {i}".format(p=phase, a=index, i=prevOutput))
-        prevOutput = runAmpProgram(amp, [phase, prevOutput])
+    if mode == "feedback":
+        # Loop until HALT detected in last machine
+        while prevOutput != "HALT":
+            for amp in amps:
+                lastOutput = prevOutput
+                if iteration == 0:
+                    # Initial phase setup
+                    phase = phases.pop()
+                    prevOutput = runAmpProgram(amp, [phase, prevOutput])
+                else:
+                    # Just one input
+                    prevOutput = runAmpProgram(amp, [prevOutput])
+                    # If halt detected, stop looping amps, grab lastOutput
+                    if prevOutput == "HALT":
+                        break
+            iteration += 1
+        return lastOutput
+    else:
+        # Normal execution (part 1)
+        for index, amp in enumerate(amps):
+            phase = phases.pop()
+            prevOutput = runAmpProgram(amp, [phase, prevOutput])
 
-    print(prevOutput)
     return prevOutput
 
 
+# Function to generate permutations
 def all_perms(elements):
     if len(elements) <= 1:
         yield elements
@@ -48,11 +71,11 @@ def main():
     # Create amp chain
     amps = []
     for amp in range(5):
-        amps.append(Amplifier(mem))
+        uniqueMem = mem.copy()
+        amps.append(Amplifier(uniqueMem))
 
     # Create permutations, keep as iterator
-    permutations = all_perms(list(range(5)))
-    # print(list(permutations))
+    permutations = all_perms(list(range(5, 10)))
 
     # Calculate strongest signal
     strongestSignal = 0
@@ -62,12 +85,8 @@ def main():
             amp.resetMemory(mem)
 
         print("Testing perm ", perm)
-        # time.sleep(0.5)
-        strongestSignal = max(strongestSignal, tryPhaseCombination(amps, perm))
-
-    print("Strongest signal: ", strongestSignal)
-
-
+        strongestSignal = max(strongestSignal, tryPhaseCombination(amps, perm, "feedback"))
+        print("Strongest signal: ", strongestSignal)
 
 
 if (__name__ == '__main__'):
