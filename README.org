@@ -1,1 +1,4 @@
-This repository include all my solutions for Advent of code 2019, written in python.
+
+* Advent of code
+** 2019
+Did half of it, then got busy with stuff.
