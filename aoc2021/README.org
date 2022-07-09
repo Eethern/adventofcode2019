@@ -1,3 +1,1 @@
 * 2021
-1. Sonar Sweep ~ [[./day1/taska.py][A]] [[./day1/taskb.py][B]]
-2. Dive ~ [[./day2/taska.py][A]] [[./day2/taskb.py][B]]
