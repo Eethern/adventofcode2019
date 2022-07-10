@@ -32,12 +32,12 @@ fn match_day(day: usize) -> Option<Box<dyn Problem>> {
 
 fn run(problem: &dyn Problem, day: usize, part: usize, input: &str) {
     let start = Instant::now();
-    let duration = start.elapsed();
     let output = match part {
         1 => problem.part1(input),
         2 => problem.part2(input),
         _ => "Error".to_string(),
     };
+    let duration = start.elapsed();
 
     println!(
         "Answer to day {}, part {} ({}.{:03} s): {}",
