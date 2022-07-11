@@ -35,10 +35,6 @@ impl Problem for DayThree {
 
     fn part2(&self, input: &str) -> String {
 
-        let numbers: Vec<i32> = input.lines()
-            .map(|bstr| i32::from_str_radix(bstr, 2).expect("Not a binary number"))
-            .collect();
-
         format!("{}", "undefined")
 
     }

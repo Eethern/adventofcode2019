@@ -57,7 +57,7 @@ impl Grid {
 
     fn get_overlaps(self) -> u32 {
         let mut num_overlaps = 0;
-        for (p, value) in self.cells.into_iter() {
+        for (_, value) in self.cells.into_iter() {
             if value > 1 {
                 num_overlaps += 1;
             }
