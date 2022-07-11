@@ -10,7 +10,7 @@ struct Fish {
 
 impl Fish {
     fn new(timer: u32) -> Self {
-        Fish { timer: timer }
+        Fish { timer }
     }
 }
 
@@ -22,12 +22,12 @@ struct Simulation {
 impl Simulation {
     fn new(input: &str) -> Self {
         let fishes: Vec<Fish> = input
-            .strip_suffix("\n")
+            .strip_suffix('\n')
             .unwrap()
-            .split(",")
+            .split(',')
             .map(|timer| Fish::new(timer.parse().unwrap()))
             .collect();
-        Simulation { fishes: fishes }
+        Simulation { fishes }
     }
 
     fn tick(&mut self) {

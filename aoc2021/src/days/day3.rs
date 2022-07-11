@@ -4,17 +4,21 @@ pub struct DayThree {}
 
 impl Problem for DayThree {
     fn part1(&self, input: &str) -> String {
-        let numbers: Vec<&str> = input.split("\n")
+        let numbers: Vec<&str> = input.split('\n')
             .collect();
 
         let n: usize = numbers.len();
         let k: usize = numbers[0].len();
             
         let mut counts =  vec![0; k];
-        for r in 0..n {
-            for c in 0..k {
-                counts[c] += numbers[r].as_bytes()[c] as usize - 48;
-            }
+        for num in numbers {
+            let bytes = num.as_bytes();
+            for (c, count) in counts.iter_mut().enumerate() {
+                *count += bytes[c] as usize - 48;
+            } 
+            // for c in 0..k {
+            //     counts[c] += num.as_bytes()[c] as usize - 48;
+            // }
         }
 
         let mut gamma_rate = 0;
@@ -33,9 +37,10 @@ impl Problem for DayThree {
         format!("{}", gamma_rate * epsilon_rate)
     }
 
-    fn part2(&self, input: &str) -> String {
+    fn part2(&self, _input: &str) -> String {
 
-        format!("{}", "undefined")
+        "undefined".to_string()
+        // format!("{}", "undefined")
 
     }
 }

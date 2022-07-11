@@ -4,7 +4,7 @@ pub struct DayTwo {}
 
 impl Problem for DayTwo {
     fn part1(&self, input: &str) -> String {
-        let (hor, depth) = input.lines().map(|cmd| cmd.split_once(" ").unwrap()).fold(
+        let (hor, depth) = input.lines().map(|cmd| cmd.split_once(' ').unwrap()).fold(
             (0, 0),
             |(h, d), (cmd, val)| match (cmd, val.parse::<u32>().unwrap()) {
                 ("forward", v) => (h + v, d),
@@ -18,7 +18,7 @@ impl Problem for DayTwo {
     }
 
     fn part2(&self, input: &str) -> String {
-        let (hor, depth, aim) = input.lines().map(|cmd| cmd.split_once(" ").unwrap()).fold(
+        let (hor, depth, _) = input.lines().map(|cmd| cmd.split_once(' ').unwrap()).fold(
             (0, 0, 0),
             |(h, d, a), (cmd, val)| match (cmd, val.parse::<u32>().unwrap()) {
                 ("forward", v) => (h + v, d + a * v, a),

@@ -22,7 +22,7 @@ impl Bingo {
     fn parse_input(input: &str) -> Self {
         let (nums, boards) = input.split_once("\n\n").unwrap();
         let numbers = nums.split(',').map(|s| s.parse().unwrap()).collect();
-        let boards: Vec<Board> = boards.split("\n\n").map(|b| Board::parse(b)).collect();
+        let boards: Vec<Board> = boards.split("\n\n").map(Board::parse).collect();
         let mut finished_boards = Vec::new();
         let mut num_map = HashMap::new();
 
@@ -81,8 +81,6 @@ impl Bingo {
                         num_left -= 1;
                         self.finished_boards[*board_id] = true;
                     }
-
-                    println!("{} {} {:?}\n {:?}", num_left, num, board.row_counts, board.col_counts);
 
 
                     if num_left == 0 {

@@ -4,7 +4,7 @@ pub struct DayOne {}
 
 impl Problem for DayOne {
     fn part1(&self, input: &str) -> String {
-        let depths: Vec<i32> = input.split("\n").flat_map(|x| x.parse()).collect();
+        let depths: Vec<i32> = input.split('\n').flat_map(|x| x.parse()).collect();
         let increases: i32 = depths.iter().zip(&depths[1..])
             .map(|(cur, next)| if next - cur > 0 {1} else {0})
             .sum();
@@ -13,7 +13,7 @@ impl Problem for DayOne {
     }
 
     fn part2(&self, input: &str) -> String {
-        let depths: Vec<i32> = input.split("\n").flat_map(|x| x.parse()).collect();
+        let depths: Vec<i32> = input.split('\n').flat_map(|x| x.parse()).collect();
         let window_size = 3;
         let mut window: i32 = depths[0..window_size].iter().sum();
 

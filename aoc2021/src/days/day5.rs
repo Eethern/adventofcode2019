@@ -24,12 +24,12 @@ impl Grid {
     fn setup_grid(input: &str, skip_diagonals: bool) -> Self {
         let cells = HashMap::new();
         let mut grid = Self {
-            cells: cells,
-            skip_diagonals: skip_diagonals
+            cells,
+            skip_diagonals,
         };
 
         // Add the lines
-        let lines: Vec<Line> = input.lines().map(|line| parse_line(line)).collect();
+        let lines: Vec<Line> = input.lines().map(parse_line).collect();
         for line in lines.iter() {
             grid.add_line(line);
         }
@@ -70,7 +70,7 @@ impl Grid {
 fn parse_line(l: &str) -> Line {
     let points: Vec<Vec<i32>> = l
         .split(" -> ")
-        .map(|p| p.split(",").map(|x| x.parse().unwrap()).collect())
+        .map(|p| p.split(',').map(|x| x.parse().unwrap()).collect())
         .collect();
 
     let start = Point {
