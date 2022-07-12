@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 counter = "0.5.5"
+disjoint-sets = "0.4.2"
 ndarray = "0.15.4"

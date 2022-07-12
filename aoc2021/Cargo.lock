@@ -7,6 +7,7 @@ name = "aoc2021"
 version = "0.1.0"
 dependencies = [
  "counter",
+ "disjoint-sets",
  "ndarray",
 ]
 
@@ -24,6 +25,12 @@ checksum = "63b05d7acd00b53d97b7369c4062027ff55711db0c509f5b28d6d964a2f1ff87"
 dependencies = [
  "num-traits",
 ]
+
+[[package]]
+name = "disjoint-sets"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ccbbca7d6a247007ca2535c616d4bb4a5fcad176ef0218671f96b88c52c3d34"
 
 [[package]]
 name = "matrixmultiply"

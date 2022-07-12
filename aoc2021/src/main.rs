@@ -6,7 +6,7 @@ use problem::Problem;
 mod days;
 
 pub fn main() {
-    let day: usize = 5;
+    let day: usize = 9;
     let input: String = get_input(day);
     let problem = match_day(day);
 
@@ -28,6 +28,7 @@ fn match_day(day: usize) -> Option<Box<dyn Problem>> {
         5 => Some(Box::new(days::day5::Solution {})),
         6 => Some(Box::new(days::day6::Solution {})),
         7 => Some(Box::new(days::day7::Solution {})),
+        9 => Some(Box::new(days::day9::Solution {})),
         // ...
         _ => None,
     }
