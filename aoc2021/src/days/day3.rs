@@ -1,8 +1,8 @@
 use crate::problem::Problem;
 
-pub struct DayThree {}
+pub struct Solution {}
 
-impl Problem for DayThree {
+impl Problem for Solution {
     fn part1(&self, input: &str) -> String {
         let numbers: Vec<&str> = input.split('\n')
             .collect();

@@ -1,8 +1,8 @@
 use crate::problem::Problem;
 
-pub struct Template {}
+pub struct Solution {}
 
-impl Problem for Template {
+impl Problem for Solution {
     fn part1(&self, input: &str) -> String {
         format!("{}", "undefined")
     }

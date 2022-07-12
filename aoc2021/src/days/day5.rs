@@ -1,7 +1,7 @@
 use crate::problem::Problem;
 use std::collections::HashMap;
 
-pub struct DayFive {}
+pub struct Solution {}
 
 #[derive(Debug)]
 struct Point {
@@ -86,7 +86,7 @@ fn parse_line(l: &str) -> Line {
 }
 
 
-impl Problem for DayFive {
+impl Problem for Solution {
     fn part1(&self, input: &str) -> String {
         let grid = Grid::setup_grid(input, true);
         let overlaps = grid.get_overlaps();

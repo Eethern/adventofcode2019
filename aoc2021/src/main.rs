@@ -21,13 +21,13 @@ pub fn main() {
 
 fn match_day(day: usize) -> Option<Box<dyn Problem>> {
     match day {
-        1 => Some(Box::new(days::day1::DayOne {})),
-        2 => Some(Box::new(days::day2::DayTwo {})),
-        3 => Some(Box::new(days::day3::DayThree {})),
-        4 => Some(Box::new(days::day4::DayFour {})),
-        5 => Some(Box::new(days::day5::DayFive {})),
-        6 => Some(Box::new(days::day6::DaySix {})),
-        7 => Some(Box::new(days::day7::DaySeven {})),
+        1 => Some(Box::new(days::day1::Solution {})),
+        2 => Some(Box::new(days::day2::Solution {})),
+        3 => Some(Box::new(days::day3::Solution {})),
+        4 => Some(Box::new(days::day4::Solution {})),
+        5 => Some(Box::new(days::day5::Solution {})),
+        6 => Some(Box::new(days::day6::Solution {})),
+        7 => Some(Box::new(days::day7::Solution {})),
         // ...
         _ => None,
     }

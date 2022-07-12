@@ -1,7 +1,7 @@
 use crate::problem::Problem;
 use std::collections::VecDeque;
 
-pub struct DaySix {}
+pub struct Solution {}
 
 #[derive(Debug)]
 struct Fish {
@@ -53,7 +53,7 @@ impl Simulation {
     }
 }
 
-impl Problem for DaySix {
+impl Problem for Solution {
     fn part1(&self, input: &str) -> String {
         // Slow, memory inefficient solution
         let mut sim = Simulation::new(input);
@@ -88,7 +88,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn example() {
+    fn test_part1_example() {
         let input = "3,4,3,1,2\n";
         let mut sim = Simulation::new(input);
         sim.run(18);

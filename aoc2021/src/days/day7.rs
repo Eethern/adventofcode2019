@@ -2,7 +2,7 @@ use crate::problem::Problem;
 use counter::Counter;
 use std::collections::HashMap;
 
-pub struct DaySeven {}
+pub struct Solution {}
 
 type BurnFunction<'a> = &'a dyn Fn(i32, i32, usize) -> usize;
 
@@ -24,11 +24,7 @@ fn growing_fuel_burn_cost(target: i32, pos: i32, count: usize) -> usize {
     ((dx * (dx + 1) / 2) as usize) * count
 }
 
-fn compute_cost(
-    counts: &Counter<&i32>,
-    target: i32,
-    burn_fn: BurnFunction
-) -> usize {
+fn compute_cost(counts: &Counter<&i32>, target: i32, burn_fn: BurnFunction) -> usize {
     counts
         .iter()
         .map(|(&pos, count)| burn_fn(target, *pos, *count))
@@ -50,7 +46,7 @@ fn optimize(positions: Vec<i32>, burn_fn: BurnFunction) -> (i32, usize) {
     (pos, cost)
 }
 
-impl Problem for DaySeven {
+impl Problem for Solution {
     fn part1(&self, input: &str) -> String {
         let positions = parse_input(input);
         let (_, fuel) = optimize(positions, &constant_fuel_burn_cost);
@@ -69,11 +65,20 @@ mod tests {
     use super::*;
 
     #[test]
-    fn part1_examples() {
+    fn test_part1_example() {
         let input = "16,1,2,0,4,2,7,1,2,14\n";
         let positions = parse_input(input);
         let (optimal, fuel) = optimize(positions, &constant_fuel_burn_cost);
         assert_eq!(optimal, 2);
         assert_eq!(fuel, 37);
+    }
+
+    #[test]
+    fn test_part2_example() {
+        let input = "16,1,2,0,4,2,7,1,2,14\n";
+        let positions = parse_input(input);
+        let (optimal, fuel) = optimize(positions, &growing_fuel_burn_cost);
+        assert_eq!(optimal, 5);
+        assert_eq!(fuel, 168);
     }
 }

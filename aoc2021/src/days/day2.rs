@@ -1,8 +1,8 @@
 use crate::problem::Problem;
 
-pub struct DayTwo {}
+pub struct Solution {}
 
-impl Problem for DayTwo {
+impl Problem for Solution {
     fn part1(&self, input: &str) -> String {
         let (hor, depth) = input.lines().map(|cmd| cmd.split_once(' ').unwrap()).fold(
             (0, 0),

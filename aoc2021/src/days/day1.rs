@@ -1,8 +1,8 @@
 use crate::problem::Problem;
 
-pub struct DayOne {}
+pub struct Solution {}
 
-impl Problem for DayOne {
+impl Problem for Solution {
     fn part1(&self, input: &str) -> String {
         let depths: Vec<i32> = input.split('\n').flat_map(|x| x.parse()).collect();
         let increases: i32 = depths.iter().zip(&depths[1..])

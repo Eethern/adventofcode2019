@@ -1,7 +1,7 @@
 use crate::problem::Problem;
 use std::collections::HashMap;
 
-pub struct DayFour {}
+pub struct Solution {}
 
 struct Bingo {
     num_map: HashMap<u32, Vec<(usize, usize, usize)>>,
@@ -122,7 +122,7 @@ impl Board {
     }
 }
 
-impl Problem for DayFour {
+impl Problem for Solution {
     fn part1(&self, input: &str) -> String {
         let bingo = Bingo::parse_input(input);
         let (board, num) = bingo.run();
