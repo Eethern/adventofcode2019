@@ -31,8 +31,3 @@ impl Problem for Solution {
         format!("{}", hor * depth)
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-}

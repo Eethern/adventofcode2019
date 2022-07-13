@@ -12,7 +12,3 @@ impl Problem for Solution {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-}

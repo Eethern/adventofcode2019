@@ -52,7 +52,7 @@ fn find_minima_values(matrix: &Matrix) -> Vec<u32> {
 
 // Part 2
 fn two_pass(matrix: &Matrix) -> Vec<usize> {
-    /// Uses a two pass connected component algorithm. 
+    // Uses a two pass connected component algorithm. 
 
     let mut current_label: usize = 1;
     let mut basin_sizes = vec![0];

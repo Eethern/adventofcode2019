@@ -30,9 +30,3 @@ impl Problem for Solution {
         format!("{}", acc)
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-}
-

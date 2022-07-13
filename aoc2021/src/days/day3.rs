@@ -40,12 +40,6 @@ impl Problem for Solution {
     fn part2(&self, _input: &str) -> String {
 
         "undefined".to_string()
-        // format!("{}", "undefined")
 
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
 }

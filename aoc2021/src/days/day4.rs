@@ -145,8 +145,3 @@ impl Problem for Solution {
         format!("{}", solution)
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-}
