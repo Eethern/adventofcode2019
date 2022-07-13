@@ -31,10 +31,8 @@ impl SyntaxChecker {
         for c in line.chars() {
             if self.openers.contains(&c) {
                 prev.push(c);
-            } else {
-                if prev.pop().unwrap() != *self.delim_map.get(&c).unwrap() {
-                    return *self.point_map.get(&c).unwrap();
-                }
+            } else if prev.pop().unwrap() != *self.delim_map.get(&c).unwrap() {
+                return *self.point_map.get(&c).unwrap();
             }
         }
         0
@@ -45,10 +43,8 @@ impl SyntaxChecker {
         for c in line.chars() {
             if self.openers.contains(&c) {
                 prev.push(c);
-            } else {
-                if prev.pop().unwrap() != *self.delim_map.get(&c).unwrap() {
-                    panic!("corrupt input");
-                }
+            } else if prev.pop().unwrap() != *self.delim_map.get(&c).unwrap() {
+                panic!("corrupt input");
             }
         }
         prev.iter().rev().fold(0, |acc, c| {

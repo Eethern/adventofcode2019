@@ -36,7 +36,7 @@ fn flash(grid: &mut HashMap<(isize, isize), u32>, p: (isize, isize)) -> u32 {
             get_neighbors(p).iter().fold(1, |acc, n| {
                 acc + (*grid.get(n).unwrap() > 0)
                     .then(|| {
-                        *grid.get_mut(&n).unwrap() += 1;
+                        *grid.get_mut(n).unwrap() += 1;
                         flash(grid, *n)
                     })
                     .unwrap_or(0)

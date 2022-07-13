@@ -16,7 +16,7 @@ fn create_adj_map(input: &str) -> AdjacencyList {
 }
 
 fn count_unique_paths(edges: &AdjacencyList, part2: bool) -> usize {
-    let mut start = ("start", HashSet::from(["start"]), Option::None);
+    let start = ("start", HashSet::from(["start"]), Option::None);
     let mut queue = VecDeque::from([start]);
 
     let mut paths = 0;

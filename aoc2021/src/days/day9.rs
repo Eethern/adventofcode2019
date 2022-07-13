@@ -43,8 +43,7 @@ fn find_minima_values(matrix: &Matrix) -> Vec<u32> {
     matrix
         .iter()
         .enumerate()
-        .map(|(y, row)| row.iter().enumerate().map(move |(x, val)| (val, (x, y))))
-        .flatten()
+        .flat_map(|(y, row)| row.iter().enumerate().map(move |(x, val)| (val, (x, y))))
         .filter(|(_, p)| is_minima(matrix, *p))
         .map(|(&d, _)| d)
         .collect::<Vec<u32>>()
@@ -52,7 +51,7 @@ fn find_minima_values(matrix: &Matrix) -> Vec<u32> {
 
 // Part 2
 fn two_pass(matrix: &Matrix) -> Vec<usize> {
-    // Uses a two pass connected component algorithm. 
+    // Uses a two pass connected component algorithm.
 
     let mut current_label: usize = 1;
     let mut basin_sizes = vec![0];
@@ -61,7 +60,7 @@ fn two_pass(matrix: &Matrix) -> Vec<usize> {
     let mut equiv = UnionFind::<usize>::new(2000); // Don't hardcode size?
     let mut labels: Vec<Vec<usize>> = Vec::new();
     for _ in 0..height {
-        labels.push(vec![0;width]);
+        labels.push(vec![0; width]);
     }
 
     // Label regions
@@ -81,14 +80,14 @@ fn two_pass(matrix: &Matrix) -> Vec<usize> {
                         current_label += 1;
                         basin_sizes.push(0);
                         current_label - 1
-                    },
-                    (true, false, _) => labels[y][x-1],
-                    (false, true, _) => labels[y-1][x],
-                    (true, true, true) => labels[y][x-1],
+                    }
+                    (true, false, _) => labels[y][x - 1],
+                    (false, true, _) => labels[y - 1][x],
+                    (true, true, true) => labels[y][x - 1],
                     (true, true, false) => {
                         equiv.union(west_label, north_label);
-                        labels[y][x-1]
-                    },
+                        labels[y][x - 1]
+                    }
                 };
             }
         }
@@ -120,9 +119,9 @@ impl Problem for Solution {
         let mut solution = two_pass(&matrix);
         solution.sort_unstable();
 
-        let answer = solution.iter().rev().take(3).fold(1, |acc, val| acc * val);
+        let answer: usize = solution.iter().rev().take(3).product();
 
-        format!("{:?}", answer) 
+        format!("{:?}", answer)
     }
 }
 
@@ -159,6 +158,5 @@ mod tests {
         dbg!(&solution);
         let answer = solution.iter().rev().take(3).fold(1, |acc, val| acc * val);
         assert_eq!(answer, 1134);
-        
     }
 }

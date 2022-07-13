@@ -29,7 +29,7 @@ fn parse_input(input: &str) -> (Vec<Point>, Vec<(&str, i32)>) {
 }
 
 fn fold(points: Vec<Point>, fold: (&str, i32)) -> Vec<Point> {
-    let mut new_points = points.clone()
+    let mut new_points = points
         .iter()
         .map(|c|
              match fold {
