@@ -48,11 +48,11 @@ fn run(problem: &dyn Problem, day: usize, part: usize, input: &str) {
     let duration = start.elapsed();
 
     println!(
-        "Answer to day {}, part {} ({}.{:03} s): {}",
+        "Answer to day {}, part {} ({}.{:06} s): {}",
         day,
         part,
         duration.as_secs(),
-        duration.subsec_millis(),
+        duration.subsec_micros(),
         output
     );
 }
