@@ -35,6 +35,7 @@ fn match_day(day: usize) -> Option<Box<dyn Problem>> {
         12 => Some(Box::new(days::day12::Solution {})),
         13 => Some(Box::new(days::day13::Solution {})),
         14 => Some(Box::new(days::day14::Solution {})),
+        15 => Some(Box::new(days::day15::Solution {})),
         // ...
         _ => None,
     }
