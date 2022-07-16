@@ -48,7 +48,7 @@ impl fmt::Debug for Vertex {
 impl Vertex {
     fn from_xy(x: isize, y: isize) -> Vertex {
         Vertex {
-            point: Point { x: x, y: y },
+            point: Point { x, y },
         }
     }
     fn from_point(point: Point) -> Vertex {
@@ -91,7 +91,7 @@ fn in_bounds(p: Point, width: isize, height: isize) -> bool {
 fn get_neighbors(center: Point, width: isize, height: isize) -> Vec<Point> {
     OFFSETS
         .iter()
-        .map(|&(x, y)| center + Point { x: x, y: y })
+        .map(|&(x, y)| center + Point { x, y })
         .filter(|p| in_bounds(*p, width, height))
         .collect()
 }
@@ -173,7 +173,7 @@ fn dijkstras(
         if let Some(neighbors) = adj_list.get(&vertex) {
             for (neighbor, cost) in neighbors {
                 let new_distance = dist + cost;
-                let is_shorter = distances.get(&neighbor).map_or(true, |&d| new_distance < d);
+                let is_shorter = distances.get(neighbor).map_or(true, |&d| new_distance < d);
                 if is_shorter {
                     distances.insert(*neighbor, new_distance);
                     to_visit.push(Visit {

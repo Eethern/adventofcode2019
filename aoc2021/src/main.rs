@@ -6,7 +6,7 @@ use problem::Problem;
 mod days;
 
 pub fn main() {
-    let day: usize = 9;
+    let day: usize = 2;
     let input: String = get_input(day);
     let problem = match_day(day);
 
@@ -21,15 +21,15 @@ pub fn main() {
 
 fn match_day(day: usize) -> Option<Box<dyn Problem>> {
     match day {
-        1 => Some(Box::new(days::day1::Solution {})),
-        2 => Some(Box::new(days::day2::Solution {})),
-        3 => Some(Box::new(days::day3::Solution {})),
-        4 => Some(Box::new(days::day4::Solution {})),
-        5 => Some(Box::new(days::day5::Solution {})),
-        6 => Some(Box::new(days::day6::Solution {})),
-        7 => Some(Box::new(days::day7::Solution {})),
-        8 => Some(Box::new(days::day8::Solution {})),
-        9 => Some(Box::new(days::day9::Solution {})),
+        1 => Some(Box::new(days::day01::Solution {})),
+        2 => Some(Box::new(days::day02::Solution {})),
+        3 => Some(Box::new(days::day03::Solution {})),
+        4 => Some(Box::new(days::day04::Solution {})),
+        5 => Some(Box::new(days::day05::Solution {})),
+        6 => Some(Box::new(days::day06::Solution {})),
+        7 => Some(Box::new(days::day07::Solution {})),
+        8 => Some(Box::new(days::day08::Solution {})),
+        9 => Some(Box::new(days::day09::Solution {})),
         10 => Some(Box::new(days::day10::Solution {})),
         11 => Some(Box::new(days::day11::Solution {})),
         12 => Some(Box::new(days::day12::Solution {})),
