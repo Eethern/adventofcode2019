@@ -9,13 +9,12 @@ struct Region {
     y1: isize,
 }
 
+
 impl Region {
     fn new(x0: isize, y0: isize, x1: isize, y1: isize) -> Region {
         Region { x0, y0, x1, y1 }
     }
-    fn get_bounds(&self) -> (isize, isize, isize, isize) {
-        (self.x0, self.y0, self.x1, self.y1)
-    }
+
     fn point_in_region(&self, x: isize, y: isize) -> bool {
         x >= self.x0 && x <= self.x1 && y >= self.y0 && y <= self.y1
     }
@@ -33,10 +32,6 @@ fn parse_target(input: &str) -> Region {
         .collect();
 
     Region::new(bounds[0], bounds[2], bounds[1], bounds[3])
-}
-
-fn required_x_velocity(tx: isize) -> f32 {
-    -(1.0 / 2.0) + ((1.0 / 4.0) + 2.0 * (tx as f32 + 1.0)).sqrt()
 }
 
 fn compute_initial_x_velocities(target: &Region) -> Vec<isize> {
@@ -128,7 +123,7 @@ fn get_all_initial_velocities(input: &str) -> Vec<((isize, isize), (isize, isize
 impl Problem for Solution {
     fn part1(&self, input: &str) -> String {
         let highest_point = get_optimal_initial_velocity(input);
-        format!("{}", highest_point.0.1)
+        format!("{}", highest_point.0 .1)
     }
 
     fn part2(&self, input: &str) -> String {
@@ -142,12 +137,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_parse() {
-        let input = "target area: x=20..30, y=-10..-5";
-        assert_eq!((20, -10, 30, -5), parse_target(input).get_bounds());
-    }
-
-    #[test]
     fn test_part1_example() {
         let input = "target area: x=20..30, y=-10..-5";
         let (p, v) = get_optimal_initial_velocity(input);
@@ -157,7 +146,8 @@ mod tests {
     #[test]
     fn test_part2_example() {
         let input = "target area: x=20..30, y=-10..-5";
-        let mut candidates = get_all_initial_velocities(input);
+        let candidates = get_all_initial_velocities(input);
         assert_eq!(112, candidates.len(), "incorrect number of candidates");
     }
 }
+
