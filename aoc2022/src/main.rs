@@ -6,16 +6,22 @@ use problem::Problem;
 mod days;
 
 pub fn main() {
-    let day: usize = 1;
-    let input: String = get_input(day);
-    let problem = match_day(day);
+    for day in 1..=25 {
+        let input = match get_input(day) {
+            Err(err) => {
+                println!("[DAY {:02}] {}", day, err);
+                continue
+            },
+            Ok(input) => input
+        };
 
-    match problem {
-        Some(x) => {
-            run(&*x, day, 1, &input);
-            run(&*x, day, 2, &input);
+        match match_day(day) {
+            Some(x) => {
+                run(&*x, day, 1, &input);
+                run(&*x, day, 2, &input);
+            }
+            None => println!("[DAY {:02}] no solution found", day),
         }
-        None => println!("Cannot find problem"),
     }
 }
 
@@ -62,7 +68,7 @@ fn run(problem: &dyn Problem, day: usize, part: usize, input: &str) {
     match output {
         Some(out) => {
             println!(
-                "Answer to day {}, part {} ({}.{:06} s): {}",
+                "[DAY {:02}] part {} ({}.{:06} s): {}",
                 day,
                 part,
                 duration.as_secs(),
@@ -74,9 +80,9 @@ fn run(problem: &dyn Problem, day: usize, part: usize, input: &str) {
     };
 }
 
-fn get_input(day: usize) -> String {
+fn get_input(day: usize) -> Result<String, std::io::Error> {
     let filename = input_file_path(day);
-    fs::read_to_string(filename).expect("Something went wrong reading the file")
+    fs::read_to_string(filename)
 }
 
 fn input_file_path(day: usize) -> String {
