@@ -19,7 +19,7 @@ impl Problem for Solution {
     fn part2(&self, _input: &str) -> Option<String> {
         let mut weights = parse(&_input);
         weights.sort();
-        let answer: i32 = weights[weights.len()-3..].iter().sum();
+        let answer: i32 = weights.iter().rev().take(3).sum();
         Some(format!("{}", answer))
     }
 }
