@@ -8,8 +8,8 @@ mod days;
 pub fn main() {
     for day in 1..=25 {
         let input = match get_input(day) {
-            Err(err) => {
-                println!("[DAY {:02}] {}", day, err);
+            Err(_) => {
+                println!("[DAY {:02}] no input", day);
                 continue;
             }
             Ok(input) => input,
@@ -25,33 +25,39 @@ pub fn main() {
     }
 }
 
+macro_rules! load_solution {
+    ($day:ident) => {
+        Some(Box::new(days::$day::Solution {}))
+    };
+}
+
 fn match_day(day: usize) -> Option<Box<dyn Problem>> {
     match day {
-        1 => Some(Box::new(days::day01::Solution {})),
-        // 2 => Some(Box::new(days::day02::Solution {})),
-        // 3 => Some(Box::new(days::day03::Solution {})),
-        // 4 => Some(Box::new(days::day04::Solution {})),
-        // 5 => Some(Box::new(days::day05::Solution {})),
-        // 6 => Some(Box::new(days::day06::Solution {})),
-        // 7 => Some(Box::new(days::day07::Solution {})),
-        // 8 => Some(Box::new(days::day08::Solution {})),
-        // 9 => Some(Box::new(days::day09::Solution {})),
-        // 10 => Some(Box::new(days::day10::Solution {})),
-        // 11 => Some(Box::new(days::day11::Solution {})),
-        // 12 => Some(Box::new(days::day12::Solution {})),
-        // 13 => Some(Box::new(days::day13::Solution {})),
-        // 14 => Some(Box::new(days::day14::Solution {})),
-        // 15 => Some(Box::new(days::day15::Solution {})),
-        // 16 => Some(Box::new(days::day16::Solution {})),
-        // 17 => Some(Box::new(days::day17::Solution {})),
-        // 18 => Some(Box::new(days::day18::Solution {})),
-        // 19 => Some(Box::new(days::day19::Solution {})),
-        // 20 => Some(Box::new(days::day20::Solution {})),
-        // 21 => Some(Box::new(days::day21::Solution {})),
-        // 22 => Some(Box::new(days::day22::Solution {})),
-        // 23 => Some(Box::new(days::day23::Solution {})),
-        // 24 => Some(Box::new(days::day24::Solution {})),
-        // 25 => Some(Box::new(days::day25::Solution {})),
+        1 => load_solution!(day01),
+        2 => load_solution!(day02),
+        3 => load_solution!(day03),
+        4 => load_solution!(day04),
+        5 => load_solution!(day05),
+        6 => load_solution!(day06),
+        7 => load_solution!(day07),
+        8 => load_solution!(day08),
+        9 => load_solution!(day09),
+        10 => load_solution!(day10),
+        11 => load_solution!(day11),
+        12 => load_solution!(day12),
+        13 => load_solution!(day13),
+        14 => load_solution!(day14),
+        15 => load_solution!(day15),
+        16 => load_solution!(day16),
+        17 => load_solution!(day17),
+        18 => load_solution!(day18),
+        19 => load_solution!(day19),
+        20 => load_solution!(day20),
+        21 => load_solution!(day21),
+        22 => load_solution!(day22),
+        23 => load_solution!(day23),
+        24 => load_solution!(day24),
+        25 => load_solution!(day25),
         _ => None,
     }
 }
