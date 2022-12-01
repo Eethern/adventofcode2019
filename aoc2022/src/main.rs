@@ -10,9 +10,9 @@ pub fn main() {
         let input = match get_input(day) {
             Err(err) => {
                 println!("[DAY {:02}] {}", day, err);
-                continue
-            },
-            Ok(input) => input
+                continue;
+            }
+            Ok(input) => input,
         };
 
         match match_day(day) {
@@ -61,7 +61,7 @@ fn run(problem: &dyn Problem, day: usize, part: usize, input: &str) {
     let output = match part {
         1 => problem.part1(input),
         2 => problem.part2(input),
-        _ => None
+        _ => None,
     };
     let duration = start.elapsed();
 
@@ -75,8 +75,8 @@ fn run(problem: &dyn Problem, day: usize, part: usize, input: &str) {
                 duration.subsec_micros(),
                 out
             )
-        },
-        None => ()
+        }
+        None => (),
     };
 }
 
