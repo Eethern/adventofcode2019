@@ -16,7 +16,6 @@ const OFFSETS: [(isize, isize); 8] = [
     (1, 1),
 ];
 
-
 fn in_bounds(p: (isize, isize)) -> bool {
     p.0 >= 0 && p.1 >= 0 && p.0 < SIZE as isize && p.1 < SIZE as isize
 }
@@ -77,7 +76,9 @@ impl Problem for Solution {
 
         let mut iterations = 1;
         loop {
-            if tick(&mut grid) == (SIZE as u32).pow(2) {break}
+            if tick(&mut grid) == (SIZE as u32).pow(2) {
+                break;
+            }
             iterations += 1;
         }
 

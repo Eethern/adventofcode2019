@@ -67,7 +67,7 @@ impl Problem for Solution {
         let sim = Simulation::new(input);
         let time = 256;
 
-        let mut fish_counts: VecDeque::<u64> = VecDeque::from([0; 9]);
+        let mut fish_counts: VecDeque<u64> = VecDeque::from([0; 9]);
         for fish in sim.fishes {
             fish_counts[fish.timer as usize] += 1;
         }
@@ -78,7 +78,7 @@ impl Problem for Solution {
         }
 
         let population_size: u64 = fish_counts.iter().sum();
-        
+
         format!("{}", population_size)
     }
 }
@@ -96,5 +96,4 @@ mod tests {
         sim.run(62);
         assert_eq!(sim.fishes.len(), 5934);
     }
-
 }

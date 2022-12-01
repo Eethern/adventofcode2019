@@ -17,7 +17,7 @@ struct Line {
 
 struct Grid {
     cells: HashMap<(i32, i32), u32>,
-    skip_diagonals: bool
+    skip_diagonals: bool,
 }
 
 impl Grid {
@@ -42,7 +42,7 @@ impl Grid {
         let dy = (line.end.y - line.start.y).signum();
 
         if self.skip_diagonals && dx != 0 && dy != 0 {
-            return
+            return;
         }
 
         let mut x = line.start.x;
@@ -85,7 +85,6 @@ fn parse_line(l: &str) -> Line {
     Line { start, end }
 }
 
-
 impl Problem for Solution {
     fn part1(&self, input: &str) -> String {
         let grid = Grid::setup_grid(input, true);
@@ -101,4 +100,3 @@ impl Problem for Solution {
         format!("{}", overlaps)
     }
 }
-

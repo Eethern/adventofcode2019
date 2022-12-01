@@ -1,6 +1,6 @@
 use crate::problem::Problem;
-use std::collections::HashMap;
 use counter::Counter;
+use std::collections::HashMap;
 
 pub struct Solution {}
 
@@ -21,31 +21,29 @@ fn build_string_solution(template: String, rules: &HashMap<String, String>) -> S
     let mut new_template = String::new();
     for i in 0..template.len() - 1 {
         new_template.push(template.chars().nth(i).unwrap());
-        new_template.push_str(
-            rules
-                .get(&template[i..i + 2].to_string())
-                .unwrap(),
-        );
+        new_template.push_str(rules.get(&template[i..i + 2].to_string()).unwrap());
     }
     new_template.push(template.chars().last().unwrap());
     new_template
 }
 
-fn count_bigrams_solution(template: String, rules: &HashMap<String, String>, steps: usize) -> Counter<String, u64> {
+fn count_bigrams_solution(
+    template: String,
+    rules: &HashMap<String, String>,
+    steps: usize,
+) -> Counter<String, u64> {
     let mut letter_counts = Counter::new();
     let mut counts = Counter::new();
     let t_len = template.len();
-        
+
     // Count initial bigrams
     for i in 0..template.len() - 1 {
-        letter_counts[&template[i..i+1].to_string()] += 1; 
-        counts[
-            &template[i..i + 2].to_string()
-        ] += 1;
+        letter_counts[&template[i..i + 1].to_string()] += 1;
+        counts[&template[i..i + 2].to_string()] += 1;
     }
 
     // Add in missing last character
-    letter_counts[&template[t_len-1..t_len].to_string()] += 1;
+    letter_counts[&template[t_len - 1..t_len].to_string()] += 1;
 
     // Adjust new bigram counts based on adde characters and existing bigrams
     for _ in 0..steps {
@@ -59,7 +57,7 @@ fn count_bigrams_solution(template: String, rules: &HashMap<String, String>, ste
             }
         }
     }
-    
+
     letter_counts
 }
 
@@ -113,13 +111,16 @@ CN -> C";
 
         let (mut template, rules) = parse_input(input);
         template = build_string_solution(template, &rules);
-        assert_eq!("NCNBCHB", template); 
+        assert_eq!("NCNBCHB", template);
         template = build_string_solution(template, &rules);
         assert_eq!("NBCCNBBBCBHCB", template);
         template = build_string_solution(template, &rules);
         assert_eq!("NBBBCNCCNBBNBNBBCHBHHBCHB", template);
         template = build_string_solution(template, &rules);
-        assert_eq!("NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB", template);
+        assert_eq!(
+            "NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB",
+            template
+        );
     }
 
     #[test]
@@ -148,6 +149,5 @@ CN -> C";
         let common = counts.most_common();
         let answer = common[0].1 - common[common.len() - 1].1;
         assert_eq!(answer, 2188189693529);
-        
     }
 }

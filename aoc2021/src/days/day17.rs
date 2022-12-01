@@ -9,7 +9,6 @@ struct Region {
     y1: isize,
 }
 
-
 impl Region {
     fn new(x0: isize, y0: isize, x1: isize, y1: isize) -> Region {
         Region { x0, y0, x1, y1 }
@@ -150,4 +149,3 @@ mod tests {
         assert_eq!(112, candidates.len(), "incorrect number of candidates");
     }
 }
-

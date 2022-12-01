@@ -103,11 +103,7 @@ fn parse_tiled_point_costs(
 ) -> HashMap<Point, usize> {
     let (tw, th) = repeats;
 
-    let new_input: Vec<String> = input
-        .repeat(th)
-        .lines()
-        .map(|l| l.repeat(tw))
-        .collect();
+    let new_input: Vec<String> = input.repeat(th).lines().map(|l| l.repeat(tw)).collect();
 
     new_input
         .iter()

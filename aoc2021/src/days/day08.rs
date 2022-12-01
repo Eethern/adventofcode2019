@@ -5,22 +5,19 @@ pub struct Solution {}
 impl Problem for Solution {
     fn part1(&self, input: &str) -> String {
         let candidates = vec![2, 3, 4, 7];
-        let answer = input.lines().flat_map(|l| {
-            l.split(" | ")
-                .last()
-                .unwrap()
-                .split(' ')
-                .filter(|seq| {
+        let answer = input
+            .lines()
+            .flat_map(|l| {
+                l.split(" | ").last().unwrap().split(' ').filter(|seq| {
                     let len = seq.len();
                     candidates.contains(&len)
                 })
-        }).count();
+            })
+            .count();
         format!("{}", answer)
     }
 
     fn part2(&self, _input: &str) -> String {
-        
-        
         format!("{}", "undefined")
     }
 }
@@ -49,7 +46,7 @@ impl Problem for Solution {
 //                     4 => 4,
 //                     7 => 8,
 //                     len => match (
-//                         len, 
+//                         len,
 //                         d.chars().filter(|&b| one.contains(b)).count(),
 //                         d.chars().filter(|&b| four.contains(b)).count()
 //                     ) {
@@ -66,7 +63,7 @@ impl Problem for Solution {
 //                 .enumerate()
 //                 .fold(0, |acc, (i, n)| acc + n * 10_u32.pow(3 - i as u32))
 //         }).sum::<u32>();
-            
+
 //         assert_eq!(answer, 5353);
 
 //     }

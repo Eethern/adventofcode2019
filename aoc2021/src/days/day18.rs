@@ -6,19 +6,22 @@ pub struct Solution {}
 type Expr = Vec<(usize, u32)>;
 
 fn parse_expr(expr: &str) -> Expr {
-    expr.as_bytes().iter().fold((0, vec![]), |(mut d, mut numbers), b| {
-        match b {
-            b'[' => d += 1,
-            b']' => d -= 1,
-            b'0'..=b'9' => numbers.push((d, (b - b'0') as u32)),
-            _ => {} 
-        }
-        (d, numbers)
-    }).1
+    expr.as_bytes()
+        .iter()
+        .fold((0, vec![]), |(mut d, mut numbers), b| {
+            match b {
+                b'[' => d += 1,
+                b']' => d -= 1,
+                b'0'..=b'9' => numbers.push((d, (b - b'0') as u32)),
+                _ => {}
+            }
+            (d, numbers)
+        })
+        .1
 }
 
 fn reduce_expr(expr: &mut Expr, prev_i: usize) {
-    for i in prev_i..expr.len()-1 {
+    for i in prev_i..expr.len() - 1 {
         if i == expr.len() {
             // Because we manipulate the list during iteration
             break;
@@ -26,26 +29,25 @@ fn reduce_expr(expr: &mut Expr, prev_i: usize) {
         let (d, l) = expr[i];
         if d == 5 {
             // explode
-            let (_, r) = expr[i+1];
-            expr.remove(i+1);
+            let (_, r) = expr[i + 1];
+            expr.remove(i + 1);
             if i != 0 {
-                expr.get_mut(i-1).unwrap().1 += l;
+                expr.get_mut(i - 1).unwrap().1 += l;
             }
-            if i != expr.len()-1 {
-                expr.get_mut(i+1).unwrap().1 += r;
+            if i != expr.len() - 1 {
+                expr.get_mut(i + 1).unwrap().1 += r;
             }
             expr[i] = (4, 0);
             reduce_expr(expr, i) // restart
-            
         }
     }
     for i in 0..expr.len() {
         let (d, l) = expr[i];
         if l > 9 {
             // split
-            let (_,r) = expr[i];
-            *expr.get_mut(i).unwrap() = (d+1, l/2);
-            expr.insert(i+1, (d+1, (r+1)/2));
+            let (_, r) = expr[i];
+            *expr.get_mut(i).unwrap() = (d + 1, l / 2);
+            expr.insert(i + 1, (d + 1, (r + 1) / 2));
             reduce_expr(expr, i) // restart
         }
     }
@@ -53,21 +55,21 @@ fn reduce_expr(expr: &mut Expr, prev_i: usize) {
 
 fn add_expr(left: &mut Expr, right: &Expr) {
     left.extend(right);
-    left.iter_mut().for_each(|(d,_)| *d += 1);
+    left.iter_mut().for_each(|(d, _)| *d += 1);
 }
 
 fn magnitude(expr: &Expr) -> u32 {
     let mut expr = expr.clone();
     let mut depth = expr.iter().fold(0, |acc, (d, _)| cmp::max(acc, *d));
     while depth > 0 {
-        for i in 0..expr.len()-1 {
-            if i >= expr.len()-1 {
-                break
+        for i in 0..expr.len() - 1 {
+            if i >= expr.len() - 1 {
+                break;
             }
-            let ((dl, lv), (dr, rv)) = (expr[i], expr[i+1]);
+            let ((dl, lv), (dr, rv)) = (expr[i], expr[i + 1]);
             if dl == dr {
-                expr[i] = (depth-1, 3 * lv + 2 * rv);
-                expr.remove(i+1);
+                expr[i] = (depth - 1, 3 * lv + 2 * rv);
+                expr.remove(i + 1);
             }
         }
         depth -= 1;
@@ -85,7 +87,7 @@ impl Problem for Solution {
         }
 
         let answer = magnitude(&expr);
-        
+
         format!("{}", answer)
     }
 
@@ -113,12 +115,24 @@ impl Problem for Solution {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_part1_reduce() {
         let mut expr = parse_expr("[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]");
         reduce_expr(&mut expr, 0);
-        assert_eq!(expr, [(4, 0), (4, 7), (3, 4), (4, 7), (4, 8), (4, 6), (4, 0), (2, 8), (2, 1)]);
+        assert_eq!(
+            expr,
+            [
+                (4, 0),
+                (4, 7),
+                (3, 4),
+                (4, 7),
+                (4, 8),
+                (4, 6),
+                (4, 0),
+                (2, 8),
+                (2, 1)
+            ]
+        );
     }
 }
-

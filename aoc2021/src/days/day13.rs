@@ -31,12 +31,23 @@ fn parse_input(input: &str) -> (Vec<Point>, Vec<(&str, i32)>) {
 fn fold(points: Vec<Point>, fold: (&str, i32)) -> Vec<Point> {
     let mut new_points = points
         .iter()
-        .map(|c|
-             match fold {
-                 ("x", v) => if c.0 > v {(2 * v - c.0, c.1)} else {*c},
-                 ("y", v) => if c.1 > v {(c.0, 2 * v - c.1)} else {*c},
-                 _ => unreachable!(),
-             })
+        .map(|c| match fold {
+            ("x", v) => {
+                if c.0 > v {
+                    (2 * v - c.0, c.1)
+                } else {
+                    *c
+                }
+            }
+            ("y", v) => {
+                if c.1 > v {
+                    (c.0, 2 * v - c.1)
+                } else {
+                    *c
+                }
+            }
+            _ => unreachable!(),
+        })
         .collect::<Vec<Point>>();
 
     new_points.sort();
@@ -57,7 +68,7 @@ fn display_points(points: Vec<Point>) -> String {
     }
 
     for (x, y) in points {
-        chars[(y * (width+1) + x + y) as usize] = '█';
+        chars[(y * (width + 1) + x + y) as usize] = '█';
     }
 
     chars.iter().collect()
@@ -112,4 +123,3 @@ fold along x=5";
         assert_eq!(answer.len(), 17);
     }
 }
-

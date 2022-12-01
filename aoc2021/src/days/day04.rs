@@ -82,14 +82,12 @@ impl Bingo {
                         self.finished_boards[*board_id] = true;
                     }
 
-
                     if num_left == 0 {
-                        return (Some(board), num)
+                        return (Some(board), num);
                     }
 
                     self.boards[*board_id] = board;
                 }
-
             }
         }
         (None, 0)

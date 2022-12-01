@@ -142,20 +142,42 @@ fn evaluate(packet: &Packet) -> u64 {
     match packet {
         Packet::Lit(data) => data.value,
         Packet::Op(data) => {
-            let values: Vec<u64> = data.children.iter().map(|child| match child {
-                Packet::Lit(c_data) => c_data.value,
-                Packet::Op(c_data) => evaluate(&Packet::Op(c_data.clone())),
-            }).collect();
+            let values: Vec<u64> = data
+                .children
+                .iter()
+                .map(|child| match child {
+                    Packet::Lit(c_data) => c_data.value,
+                    Packet::Op(c_data) => evaluate(&Packet::Op(c_data.clone())),
+                })
+                .collect();
 
             match data.header.type_id {
                 0 => values.iter().sum(),
                 1 => values.iter().product(),
                 2 => *values.iter().min().unwrap(),
                 3 => *values.iter().max().unwrap(),
-                5 => if values[0] > values[1] {1} else {0},
-                6 => if values[0] < values[1] {1} else {0},
-                7 => if values[0] == values[1] {1} else {0},
-                c => panic!("encounterd unknown operation: {}", c)
+                5 => {
+                    if values[0] > values[1] {
+                        1
+                    } else {
+                        0
+                    }
+                }
+                6 => {
+                    if values[0] < values[1] {
+                        1
+                    } else {
+                        0
+                    }
+                }
+                7 => {
+                    if values[0] == values[1] {
+                        1
+                    } else {
+                        0
+                    }
+                }
+                c => panic!("encounterd unknown operation: {}", c),
             }
         }
     }
@@ -220,13 +242,25 @@ mod tests {
 
     #[test]
     fn test_part2_add() {
-        assert_eq!(3, evaluate(&parse("C200B40A82")), "Testing add: 1+2"); 
-        assert_eq!(54, evaluate(&parse("04005AC33890")), "Testing mul: 6*9"); 
-        assert_eq!(7, evaluate(&parse("880086C3E88112")), "Testing min: min(7,8,9)"); 
-        assert_eq!(9, evaluate(&parse("CE00C43D881120")), "Testing max: max(7,8,9)"); 
-        assert_eq!(1, evaluate(&parse("D8005AC2A8F0")), "Testing lt: 5<15"); 
-        assert_eq!(0, evaluate(&parse("F600BC2D8F")), "Testing gt: 5>15"); 
-        assert_eq!(0, evaluate(&parse("9C005AC2F8F0")), "Testing eq: 5==15"); 
-        assert_eq!(1, evaluate(&parse("9C0141080250320F1802104A08")), "Testing all: 1*3==2*2");
+        assert_eq!(3, evaluate(&parse("C200B40A82")), "Testing add: 1+2");
+        assert_eq!(54, evaluate(&parse("04005AC33890")), "Testing mul: 6*9");
+        assert_eq!(
+            7,
+            evaluate(&parse("880086C3E88112")),
+            "Testing min: min(7,8,9)"
+        );
+        assert_eq!(
+            9,
+            evaluate(&parse("CE00C43D881120")),
+            "Testing max: max(7,8,9)"
+        );
+        assert_eq!(1, evaluate(&parse("D8005AC2A8F0")), "Testing lt: 5<15");
+        assert_eq!(0, evaluate(&parse("F600BC2D8F")), "Testing gt: 5>15");
+        assert_eq!(0, evaluate(&parse("9C005AC2F8F0")), "Testing eq: 5==15");
+        assert_eq!(
+            1,
+            evaluate(&parse("9C0141080250320F1802104A08")),
+            "Testing all: 1*3==2*2"
+        );
     }
 }
