@@ -1,1 +1,5 @@
 * 2022
+This year is written in Rust!
+- DAY 1 :: =BinaryHeap= is about the same speed as just sorting, but should scale better.
+- DAY 2 :: =HashMap= to look up the answers, kind of feels like cheating since
+  it hardcodes the rules of the universe.
