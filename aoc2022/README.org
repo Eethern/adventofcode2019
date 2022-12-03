@@ -3,3 +3,5 @@ This year is written in Rust!
 - DAY 1 :: =BinaryHeap= is about the same speed as just sorting, but should scale better.
 - DAY 2 :: =HashMap= to look up the answers, kind of feels like cheating since
   it hardcodes the rules of the universe.
+- DAY 3 :: =HashSet= for to find common occurences in first task. =HashMap= to
+  implement a counter for occurences across strings for second task.
