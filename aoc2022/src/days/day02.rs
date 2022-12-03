@@ -6,9 +6,7 @@ pub struct Solution {}
 fn solve(input: &str, pointmap: &HashMap<&str, u32>) -> u32 {
     input
         .lines()
-        .fold(0, |acc, l| {
-            acc + pointmap.get(l).unwrap()
-        })
+        .fold(0, |acc, l| acc + pointmap.get(l).unwrap())
 }
 
 impl Problem for Solution {
@@ -22,7 +20,7 @@ impl Problem for Solution {
             ("C Y", 2),
             ("A Z", 3),
             ("B Z", 9),
-            ("C Z", 6)
+            ("C Z", 6),
         ]);
 
         let answer = solve(&_input, &pointmap);
@@ -40,7 +38,7 @@ impl Problem for Solution {
             ("C Y", 6),
             ("A Z", 8),
             ("B Z", 9),
-            ("C Z", 7)
+            ("C Z", 7),
         ]);
 
         let answer = solve(&_input, &pointmap);
