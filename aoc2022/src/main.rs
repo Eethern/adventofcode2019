@@ -13,12 +13,15 @@ pub enum AOCError {
 }
 
 pub fn main() {
+    let start = Instant::now();
     for day in 1..=25 {
         match run_day(day) {
             Ok(_) => (),
             Err(e) => println!("[DAY {:02}] {:?}", day, e),
         }
     }
+    let duration = start.elapsed();
+    println!("Total: {}µs (with IO)", duration.as_micros());
 }
 
 fn run_day(day: usize) -> Result<bool, AOCError> {
@@ -44,7 +47,7 @@ fn format_answer(day: usize, part: char, time: Duration, answer: Option<String>)
             "[DAY {:02}{}] {:6} µs: {}",
             day,
             part,
-            time.subsec_micros(),
+            time.as_micros(),
             answer,
         ),
         None => format!("[DAY {:02}{}] {:?}", day, part, AOCError::NotImplemented),
