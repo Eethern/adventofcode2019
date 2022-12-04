@@ -5,3 +5,7 @@ This year is written in Rust!
   it hardcodes the rules of the universe.
 - DAY 3 :: =HashSet= for to find common occurences in first task. =HashMap= to
   implement a counter for occurences across strings for second task.
+- DAY 4 :: Bounds checking, not much to say. Originally though it
+  would require checking across all combinations of pairs, not just
+  within pairs.
+  
