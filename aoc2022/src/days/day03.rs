@@ -16,16 +16,20 @@ fn get_priority(c: char) -> u32 {
 
 impl Problem for Solution {
     fn part1(&self, _input: &str) -> Option<String> {
+        let mut set: HashSet<char> = HashSet::new();
         let sum = _input
             .lines()
             .map(|l| {
-                let comp_size = l.len() / 2;
-                let (left, right) = (&l[..comp_size], &l[comp_size..]);
-                let set: HashSet<char> = left.chars().collect();
-                right
+                let (left, right) = l.split_at(l.len() / 2);
+                set.extend(left.chars());
+                let out = match right
                     .chars()
-                    .filter(|c| set.contains(c))
-                    .fold(0, |_, c| get_priority(c))
+                    .find(|c| set.contains(c)) {
+                        Some(c) => get_priority(c),
+                        None => 0,
+                    };
+                set.clear();
+                out
             })
             .sum::<u32>();
 
