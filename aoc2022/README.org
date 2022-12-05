@@ -8,4 +8,6 @@ This year is written in Rust!
 - DAY 4 :: Bounds checking, not much to say. Originally though it
   would require checking across all combinations of pairs, not just
   within pairs.
+- DAY 5 :: Regex to parse, =VecDeque= for each crate stack, and a =VecDeque=
+  for part b.
   
