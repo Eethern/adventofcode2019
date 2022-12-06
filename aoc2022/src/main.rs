@@ -1,3 +1,4 @@
+#![feature(test)]
 use std::fs;
 use std::time::{Duration, Instant};
 
