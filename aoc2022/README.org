@@ -11,4 +11,5 @@ This year is written in Rust!
 - DAY 5 :: Regex to parse, =VecDeque= for each crate stack, and a =VecDeque=
   for part b.
 - DAY 6 :: Nice use of =.windows= and =iter.position= functions
+- DAY 7 :: =N-ary= tree implementation. Was a pain in rust but made it!
   
