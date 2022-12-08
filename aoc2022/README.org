@@ -12,4 +12,6 @@ This year is written in Rust!
   for part b.
 - DAY 6 :: Nice use of =.windows= and =iter.position= functions
 - DAY 7 :: =N-ary= tree implementation. Was a pain in rust but made it!
+- DAY 8 :: Very bruteforce way, might want to use =memoization=
+  here. Also probably could use =SIMD= for both tasks.
   
