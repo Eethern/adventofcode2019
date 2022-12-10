@@ -14,4 +14,5 @@ This year is written in Rust!
 - DAY 7 :: =N-ary= tree implementation. Was a pain in rust but made it!
 - DAY 8 :: Very bruteforce way, might want to use =memoization=
   here. Also probably could use =SIMD= for both tasks.
+- DAY 9 :: Rope simulation with chebychev distance!
   
