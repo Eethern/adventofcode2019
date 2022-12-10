@@ -15,4 +15,6 @@ This year is written in Rust!
 - DAY 8 :: Very bruteforce way, might want to use =memoization=
   here. Also probably could use =SIMD= for both tasks.
 - DAY 9 :: Rope simulation with chebychev distance!
+- DAY 10 :: Prepared for intcode, so made a skeleton for a CPU+display :).
+  
   
