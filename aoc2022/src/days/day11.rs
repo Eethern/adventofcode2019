@@ -3,51 +3,51 @@ use std::collections::VecDeque;
 
 pub struct Solution {}
 
-#[derive(Debug)]
 enum Value {
     Old,
-    Const(i32),
+    Const(i64),
 }
 
-#[derive(Debug)]
 enum Op {
     Multiply(Value, Value),
     Add(Value, Value),
 }
 
-#[derive(Debug)]
 enum Cond {
-    IfDivisibleBy(i32, usize, usize),
+    IfDivisibleBy(i64, usize, usize),
 }
 
-#[derive(Debug)]
 struct Monkey {
     id: usize,
-    items: VecDeque<i32>,
+    items: VecDeque<i64>,
     op: Op,
     cond: Cond,
 }
 
 impl Monkey {
-    fn inspect(&mut self, denom: i32) -> i32 {
+    fn inspect(&mut self, denom: i64, use_mod: bool) -> Option<i64> {
         match self.next() {
-            Some(item) => self.op(item) / denom,
-            None => unreachable!(),
+            Some(item) => Some(if use_mod {
+                self.op(item) % denom
+            } else {
+                self.op(item) / denom
+            }),
+            None => None,
         }
     }
 
-    fn test(&self, item: i32) -> (i32, usize) {
+    fn test(&self, item: i64) -> usize {
         match self.cond {
             Cond::IfDivisibleBy(denom, t, f) => {
                 if item % denom == 0 {
-                    (item, t)
+                    t
                 } else {
-                    (item, f)
+                    f
                 }
             }
         }
     }
-    fn op(&self, item: i32) -> i32 {
+    fn op(&self, item: i64) -> i64 {
         match &self.op {
             Op::Multiply(a, b) => {
                 let a = match a {
@@ -73,17 +73,16 @@ impl Monkey {
             }
         }
     }
-    fn next(&mut self) -> Option<i32> {
+    fn next(&mut self) -> Option<i64> {
         self.items.pop_front()
     }
-    fn receive(&mut self, item: i32) {
+    fn receive(&mut self, item: i64) {
         self.items.push_back(item);
     }
 }
 
 fn parse_input(raw: &str) -> Vec<Monkey> {
-    raw
-        .split("\n\n")
+    raw.split("\n\n")
         .map(|m| parse_monkey(m))
         .collect::<Vec<Monkey>>()
 }
@@ -99,13 +98,13 @@ fn parse_monkey(raw: &str) -> Monkey {
     }
 }
 
-fn parse_items(raw: &str) -> VecDeque<i32> {
+fn parse_items(raw: &str) -> VecDeque<i64> {
     raw.split(": ")
         .last()
         .unwrap()
         .split(", ")
-        .map(|n| n.parse::<i32>().unwrap())
-        .collect::<VecDeque<i32>>()
+        .map(|n| n.parse::<i64>().unwrap())
+        .collect::<VecDeque<i64>>()
 }
 
 fn parse_id(raw: &str) -> usize {
@@ -140,15 +139,30 @@ fn parse_op(raw: &str) -> Op {
     }
 }
 
-fn play_rounds(monkeys: &mut Vec<Monkey>, n_rounds: usize, worry_denom: i32) -> Vec<usize> {
+fn play_rounds(
+    monkeys: &mut Vec<Monkey>,
+    n_rounds: usize,
+    worry_denom: i64,
+    use_mod: bool,
+) -> Vec<usize> {
     let mut inspection_counter: Vec<usize> = vec![0; monkeys.len()];
+
+    let denom: i64 = if use_mod {
+        monkeys
+            .iter()
+            .map(|m| match m.cond {
+                Cond::IfDivisibleBy(a, _, _) => a,
+            })
+            .product()
+    } else {
+        worry_denom
+    };
+
 
     for _round in 0..n_rounds {
         for mi in 0..monkeys.len() {
-            while !monkeys[mi].items.is_empty() {
-                let item = monkeys[mi].inspect(worry_denom);
-                println!("{}", item);
-                let (item, target) = monkeys[mi].test(item);
+            while let Some(item) = monkeys[mi].inspect(denom, use_mod) {
+                let target = monkeys[mi].test(item);
                 monkeys[target].receive(item);
 
                 inspection_counter[mi] += 1;
@@ -161,7 +175,7 @@ fn play_rounds(monkeys: &mut Vec<Monkey>, n_rounds: usize, worry_denom: i32) -> 
 }
 
 fn parse_cond(c: &str, t: &str, f: &str) -> Cond {
-    let c = c.split(" ").last().unwrap().parse::<i32>().unwrap();
+    let c = c.split(" ").last().unwrap().parse::<i64>().unwrap();
     let t = t.split(" ").last().unwrap().parse::<usize>().unwrap();
     let f = f.split(" ").last().unwrap().parse::<usize>().unwrap();
     Cond::IfDivisibleBy(c, t, f)
@@ -170,7 +184,7 @@ fn parse_cond(c: &str, t: &str, f: &str) -> Cond {
 impl Problem for Solution {
     fn part1(&self, _input: &str) -> Option<String> {
         let mut monkeys = parse_input(_input);
-        let inspection_counter = play_rounds(&mut monkeys, 20, 3);
+        let inspection_counter = play_rounds(&mut monkeys, 20, 3, false);
         let answer = inspection_counter
             .iter()
             .rev()
@@ -181,8 +195,15 @@ impl Problem for Solution {
     }
 
     fn part2(&self, _input: &str) -> Option<String> {
-        // Some(format!("{}", "undefined"))
-        None
+        let mut monkeys = parse_input(_input);
+        let inspection_counter = play_rounds(&mut monkeys, 10000, 0, true);
+        let answer = inspection_counter
+            .iter()
+            .rev()
+            .take(2)
+            .fold(1, |acc, &n| acc * n);
+
+        Some(answer.to_string())
     }
 }
 
@@ -223,5 +244,10 @@ Monkey 3:
     fn test_day11a() {
         let solver = Solution {};
         assert_eq!(solver.part1(TEST_INPUT).unwrap(), "10605");
+    }
+    #[test]
+    fn test_day11b() {
+        let solver = Solution {};
+        assert_eq!(solver.part2(TEST_INPUT).unwrap(), "2713310158");
     }
 }
