@@ -1,14 +1,12 @@
-use std::{
-    collections::{BinaryHeap, HashMap, HashSet},
-    fmt,
-    ops::Add,
-};
+use std::collections::{BinaryHeap, HashMap, HashSet};
 
 use crate::problem::Problem;
 
 pub struct Solution {}
 
 const OFFSETS: [(isize, isize); 4] = [(1, 0), (0, -1), (-1, 0), (0, 1)];
+
+type Vertex = (isize, isize);
 
 struct Environment {
     cost_map: HashMap<Vertex, usize>,
@@ -17,30 +15,6 @@ struct Environment {
     width: usize,
     height: usize,
 }
-
-#[derive(Eq, Hash, PartialEq, Copy, Clone)]
-struct Vertex {
-    x: isize,
-    y: isize,
-}
-
-impl fmt::Debug for Vertex {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}, {})", self.x, self.y)
-    }
-}
-
-impl Add for Vertex {
-    type Output = Self;
-    fn add(self, other: Self) -> Self {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        }
-    }
-}
-
-impl Eq for Visit {}
 
 struct Visit {
     vertex: Vertex,
@@ -59,6 +33,8 @@ impl PartialOrd for Visit {
     }
 }
 
+impl Eq for Visit {}
+
 impl Ord for Visit {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         other.dist.cmp(&self.dist)
@@ -66,21 +42,21 @@ impl Ord for Visit {
 }
 
 fn in_bounds(p: Vertex, width: isize, height: isize) -> bool {
-    p.x >= 0 && p.y >= 0 && p.x < width && p.y < height
+    p.0 >= 0 && p.1 >= 0 && p.0 < width && p.1 < height
 }
 
 fn get_neighbors(center: &Vertex, width: isize, height: isize) -> Vec<Vertex> {
     OFFSETS
         .iter()
-        .map(|&(x, y)| *center + Vertex { x, y })
+        .map(|&(x, y)| (center.0 + x, center.1 + y))
         .filter(|p| in_bounds(*p, width, height))
         .collect()
 }
 
 fn parse_input(input: &str) -> Environment {
     let mut cost_map = HashMap::new();
-    let mut start = Vertex { x: 0, y: 0 };
-    let mut end = Vertex { x: 0, y: 0 };
+    let mut start = (0, 0);
+    let mut end = (0, 0);
     let height = input.lines().count();
     let width = input.lines().next().unwrap().chars().count();
 
@@ -90,20 +66,18 @@ fn parse_input(input: &str) -> Environment {
 
             let cost = match c {
                 'S' => {
-                    start.x = x;
-                    start.y = y;
+                    start = (x, y);
                     'a'
                 }
                 'E' => {
-                    end.x = x;
-                    end.y = y;
+                    end = (x, y);
                     'z'
                 }
                 _ => c,
             } as usize
                 - 'a' as usize;
 
-            cost_map.insert(Vertex { x, y }, cost);
+            cost_map.insert((x, y), cost);
         }
     }
 
@@ -119,14 +93,9 @@ fn parse_input(input: &str) -> Environment {
 fn create_adj_list(
     points: &HashMap<Vertex, usize>,
     size: (usize, usize),
-    part_a: bool,
     steps: bool,
 ) -> HashMap<Vertex, Vec<(Vertex, usize)>> {
-    let can_traverse = if part_a {
-        |start, end| end <= start + 1
-    } else {
-        |start, end| start <= end + 1
-    };
+    let can_traverse = |start, end| end <= start + 1;
 
     points
         .iter()
@@ -135,10 +104,7 @@ fn create_adj_list(
                 vert,
                 get_neighbors(&vert, size.0 as isize, size.1 as isize)
                     .iter()
-                    .map(|n| {
-                        let c = *points.get(n).unwrap();
-                        (*n, c)
-                    })
+                    .map(|n| (*n, *points.get(n).unwrap()))
                     .filter(|(_, c)| can_traverse(*cost as isize, *c as isize))
                     .map(|(k, c)| if steps { (k, 1) } else { (k, c) })
                     .collect::<Vec<(Vertex, usize)>>(),
@@ -148,17 +114,19 @@ fn create_adj_list(
 }
 
 fn dijkstras(
-    start: Vertex,
+    starts: Vec<Vertex>,
     adj_list: &HashMap<Vertex, Vec<(Vertex, usize)>>,
 ) -> HashMap<Vertex, usize> {
     let mut visited = HashSet::new();
     let mut distances = HashMap::new();
     let mut to_visit = BinaryHeap::new();
 
-    distances.insert(start, 0);
-    to_visit.push(Visit {
-        vertex: start,
-        dist: 0,
+    starts.iter().for_each(|&start| {
+        distances.insert(start, 0);
+        to_visit.push(Visit {
+            vertex: start,
+            dist: 0,
+        });
     });
 
     while let Some(Visit { vertex, dist }) = to_visit.pop() {
@@ -187,8 +155,8 @@ fn dijkstras(
 impl Problem for Solution {
     fn part1(&self, _input: &str) -> Option<String> {
         let goal = parse_input(_input);
-        let adj_list = create_adj_list(&goal.cost_map, (goal.width, goal.height), true, true);
-        let distances = dijkstras(goal.start, &adj_list);
+        let adj_list = create_adj_list(&goal.cost_map, (goal.width, goal.height), true);
+        let distances = dijkstras(vec![goal.start], &adj_list);
         let answer = *distances.get(&goal.end).unwrap();
 
         Some(answer.to_string())
@@ -196,15 +164,15 @@ impl Problem for Solution {
 
     fn part2(&self, _input: &str) -> Option<String> {
         let goal = parse_input(_input);
-        let adj_list = create_adj_list(&goal.cost_map, (goal.width, goal.height), false, true);
-        let distances = dijkstras(goal.end, &adj_list);
-        let answer = goal
+        let adj_list = create_adj_list(&goal.cost_map, (goal.width, goal.height), true);
+        let starts = goal
             .cost_map
             .iter()
             .filter(|(_, &v)| v == 0)
-            .map(|(start, _)| *distances.get(start).unwrap_or(&usize::MAX))
-            .min()
-            .unwrap();
+            .map(|(&k, _)| k)
+            .collect::<Vec<Vertex>>();
+        let distances = dijkstras(starts, &adj_list);
+        let answer = *distances.get(&goal.end).unwrap();
 
         Some(answer.to_string())
     }
