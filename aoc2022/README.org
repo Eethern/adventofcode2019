@@ -17,5 +17,6 @@ This year is written in Rust!
 - DAY 9 :: Rope simulation with chebychev distance!
 - DAY 10 :: Prepared for intcode, so made a skeleton for a CPU+display :).
 - DAY 11 :: Clever use of modulo. Part b is really slow (probably because of the 10000 rounds).
+- DAY 12 :: First pathfinding one, used Dijkstra's.
   
   
