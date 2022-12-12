@@ -18,7 +18,7 @@ enum Cond {
 }
 
 struct Monkey {
-    id: usize,
+    _id: usize,
     items: VecDeque<i64>,
     op: Op,
     cond: Cond,
@@ -91,7 +91,7 @@ fn parse_monkey(raw: &str) -> Monkey {
     let lines: Vec<&str> = raw.lines().collect();
 
     Monkey {
-        id: parse_id(lines[0]),
+        _id: parse_id(lines[0]),
         items: parse_items(lines[1]),
         op: parse_op(lines[2]),
         cond: parse_cond(lines[3], lines[4], lines[5]),
@@ -120,7 +120,6 @@ fn parse_value(raw: &str) -> Value {
     match raw {
         "old" => Value::Old,
         n => Value::Const(n.parse().unwrap()),
-        _ => unreachable!(),
     }
 }
 

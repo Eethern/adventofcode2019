@@ -23,7 +23,7 @@ impl Opcode {
 
 struct CRTScreen {
     width: usize,
-    height: usize,
+    _height: usize,
     buffer: Vec<char>,
 }
 
@@ -32,7 +32,7 @@ impl CRTScreen {
         let buffer = vec!['.'; width * height];
         Self {
             width,
-            height,
+            _height: height,
             buffer,
         }
     }
