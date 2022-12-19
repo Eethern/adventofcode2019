@@ -1,6 +1,5 @@
-use std::collections::HashSet;
-
 use crate::problem::Problem;
+use itertools::Itertools;
 use regex::Regex;
 
 pub struct Solution {}
@@ -8,13 +7,13 @@ pub struct Solution {}
 type Point = (isize, isize);
 
 #[derive(Debug)]
-struct Scanner {
+struct Sensor {
     pos: Point,
     beacon_pos: Point,
     dist: isize,
 }
 
-impl Scanner {
+impl Sensor {
     fn from_log(log: &str) -> Self {
         let re = Regex::new(r"[x|y]=(?P<num>[-\d]*)").unwrap();
         let c = re
@@ -22,7 +21,7 @@ impl Scanner {
             .filter_map(|digits| digits["num"].parse().ok())
             .collect::<Vec<isize>>();
 
-        Scanner {
+        Sensor {
             pos: (c[0], c[1]),
             beacon_pos: (c[2], c[3]),
             dist: manhattan(&(c[0], c[1]), &(c[2], c[3])),
@@ -34,8 +33,8 @@ fn manhattan((ax, ay): &Point, (bx, by): &Point) -> isize {
     (ax - bx).abs() + (ay - by).abs()
 }
 
-fn get_bounds(scanners: &Vec<Scanner>) -> Point {
-    scanners.iter().fold((0, 0), |(l, r), s| {
+fn get_bounds(sensors: &Vec<Sensor>) -> Point {
+    sensors.iter().fold((0, 0), |(l, r), s| {
         let l = if s.pos.0 - s.dist < l {
             s.pos.0 - s.dist
         } else {
@@ -50,8 +49,8 @@ fn get_bounds(scanners: &Vec<Scanner>) -> Point {
     })
 }
 
-fn check_coverage(point: &Point, scanners: &Vec<Scanner>) -> bool {
-    scanners.iter().any(|s| {
+fn check_coverage(point: &Point, sensors: &Vec<Sensor>) -> bool {
+    sensors.iter().any(|s| {
         if s.beacon_pos == *point {
             true
         } else {
@@ -63,51 +62,72 @@ fn check_coverage(point: &Point, scanners: &Vec<Scanner>) -> bool {
     })
 }
 
-fn parse_input(input: &str) -> Vec<Scanner> {
+fn parse_input(input: &str) -> Vec<Sensor> {
     input
         .lines()
-        .map(|l| Scanner::from_log(l))
-        .collect::<Vec<Scanner>>()
+        .map(|l| Sensor::from_log(l))
+        .collect::<Vec<Sensor>>()
 }
 
 fn count_covered_positions(input: &str, y: isize) -> isize {
-    let scanners = parse_input(input);
-    let (x0, x1) = get_bounds(&scanners);
+    let sensors = parse_input(input);
+    let (x0, x1) = get_bounds(&sensors);
 
     (x0..=x1).fold(0, |acc, x| {
-        acc + if check_coverage(&(x, y), &scanners) {
+        acc + if check_coverage(&(x, y), &sensors) {
             1
         } else {
             0
         }
-    })
+    }) - 1
 }
 
-fn get_perimeter(scanner: &Scanner, bounds: (isize, isize)) -> Vec<Point> {
-    let (x, y) = scanner.pos;
-    let dist = scanner.dist;
-    (x..x+dist).zip((y..y+dist).rev())
-        .chain((x..x+dist).zip(y-dist..y))
-        .chain((x-dist..x).zip(y..y+dist))
-        .chain((x-dist..x).zip((y-dist..y).rev()))
-        .filter(|(x, y)| (bounds.0..bounds.1).contains(x) && (bounds.0..bounds.1).contains(y))
+fn good_sensor_pair(s1: &Sensor, s2: &Sensor) -> bool {
+    manhattan(&s1.pos, &s2.pos) == s1.dist + s2.dist + 2
+}
+
+fn get_candidates(sensors: &Vec<Sensor>, bounds: (isize, isize)) -> Vec<Point> {
+    sensors
+        .iter()
+        .cartesian_product(sensors.iter())
+        .filter(|(s1, s2)| good_sensor_pair(s1, s2))
+        .flat_map(|(s1, _)| {
+            let (x, y) = s1.pos;
+            let dist = s1.dist + 1;
+            (x..x + dist)
+                .zip((y..y + dist).rev())
+                .chain((x..x + dist).zip(y - dist..y))
+                .chain((x - dist..x).zip(y..y + dist))
+                .chain((x - dist..x).zip((y - dist..y).rev()))
+                .filter(|(x, y)| {
+                    (bounds.0..bounds.1).contains(x) && (bounds.0..bounds.1).contains(y)
+                })
+                .collect::<Vec<Point>>()
+        })
         .collect::<Vec<Point>>()
 }
 
-fn pinpoint_beacon(input: &str, (min, max): Point) -> Point {
-    let scanners = parse_input(input);
-    let mut perimeter: HashSet<Point> = HashSet::new();
-    for s in scanners.iter() {
-        if let Some(p) = get_perimeter(&s, (min, max)).iter().find(|&p| {
-            if !perimeter.contains(p) {
-                perimeter.insert(*p);
-                !(check_coverage(&p, &scanners))
-            } 
-            else {false}
-        }) {return *p};
-    }
+// fn get_candidates2(sensors: &Vec<Sensor>, (min, max): (isize, isize)) -> Vec<Point> {
+//     sensors
+//         .iter()
+//         .flat_map(|s| {
+//             let p1 = (s.dist - s.pos.1.abs(), s.dist - s.pos.0.abs());
+//             let p2 = (-s.dist + s.pos.1.abs(), s.dist - s.pos.0.abs());
+//             let p3 = (s.dist - s.pos.1.abs(), -s.dist + s.pos.0.abs());
+//             let p4 = (-s.dist + s.pos.1.abs(), -s.dist + s.pos.0.abs());
+//             vec![p1, p2, p3, p4]
+//         })
+//         .filter(|(x, y)| (min..max).contains(x) && (min..max).contains(y))
+//         .collect::<Vec<Point>>()
+// }
 
-    (0,0)
+fn pinpoint_beacon(input: &str, (min, max): Point) -> Point {
+    let sensors = parse_input(input);
+
+    *get_candidates(&sensors, (min, max))
+        .iter()
+        .find(|&p| !(check_coverage(&p, &sensors)))
+        .unwrap()
 }
 
 impl Problem for Solution {
