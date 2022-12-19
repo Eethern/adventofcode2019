@@ -20,6 +20,9 @@ This year is written in Rust!
 - DAY 12 :: First pathfinding one, used Dijkstra's.
 - DAY 13 :: Nice use of =PartialOrd= to compare packets.
 - DAY 14 :: Used sparse coordinates for sand blocks. Second part is super slow so will have to find a faster method.
-- DAY 15 :: Super slow part B. Looked along the perimeter.
-  
+- DAY 15 :: Kind of fast, but could still use some improvement. Used perimeter as potential locations the solution could be at.
+- DAY 16 :: =DFS=!
+- DAY 17 :: Tetris, could only solve part a with a sparse point solution.
+- DAY 18 :: Scatter to a 3D grid, then use that grid to find neighbors of each point. Part b is solved via =flood fill=.
+
   
