@@ -1,0 +1,5 @@
+* AOC 2020 in c++
+I am limiting this to c++14 because it's what my work uses.
+
+*Todos*:
+- Implement an optional type and stop using std::pair
