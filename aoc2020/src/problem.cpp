@@ -20,11 +20,11 @@ bool Problem::read_file(std::string const& file_name, std::vector<std::string>& 
     return true;
 }
 
-void Problem::run(std::string const& file_name)
+void Problem::run()
 {
     using namespace std::chrono;
     high_resolution_clock::time_point part1_t1 = high_resolution_clock::now();
-    std::pair<bool, std::uint32_t> result_part1{this->part1(file_name)};
+    std::pair<bool, std::uint32_t> result_part1{this->part1()};
     high_resolution_clock::time_point part1_t2 = high_resolution_clock::now();
     duration<double> part1_time_span = duration_cast<microseconds>(part1_t2 - part1_t1);
 
@@ -36,7 +36,7 @@ void Problem::run(std::string const& file_name)
     }
 
     high_resolution_clock::time_point part2_t1 = high_resolution_clock::now();
-    std::pair<bool, std::uint32_t> result_part2{this->part2(file_name)};
+    std::pair<bool, std::uint32_t> result_part2{this->part2()};
     high_resolution_clock::time_point part2_t2 = high_resolution_clock::now();
     duration<double> part2_time_span =
         duration_cast<microseconds>(part2_t2 - part2_t1);

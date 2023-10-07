@@ -2,6 +2,7 @@
 
 class Day01 : public Problem {
 public:
-    std::pair<bool, std::uint32_t> part1(std::string const& file_name) override;
-    std::pair<bool, std::uint32_t> part2(std::string const& file_name) override;
+    Day01(const std::string& input) : Problem(input) {}
+    std::pair<bool, std::uint32_t> part1() override;
+    std::pair<bool, std::uint32_t> part2() override;
 };

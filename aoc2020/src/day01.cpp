@@ -12,9 +12,10 @@
 class Day01 : public Problem
 {
 public:
-    std::pair<bool, std::uint32_t> part1(std::string const& file_name) override
+    Day01(const std::string& input) : Problem(input) {}
+    std::pair<bool, std::uint32_t> part1() override
     {
-        std::vector<uint32_t> numbers{parse_input(file_name)};
+        std::vector<uint32_t> numbers{parse_input(this->input_)};
         for (uint32_t const& first : numbers) {
             for (uint32_t const& second : numbers) {
                 if ((first + second) == 2020) {
@@ -25,9 +26,9 @@ public:
         return {false, NULL};
     }
 
-    std::pair<bool, std::uint32_t> part2(std::string const& file_name) override
+    std::pair<bool, std::uint32_t> part2() override
     {
-        std::vector<uint32_t> numbers{parse_input(file_name)};
+        std::vector<uint32_t> numbers{parse_input(this->input_)};
         std::sort(numbers.begin(), numbers.end());
 
         for (uint32_t const x : numbers) {
@@ -66,12 +67,12 @@ private:
 class Day01Test : public ::testing::Test
 {
 protected:
-    Day01 problem_{};
+    Day01 problem_{"example/01.txt"};
 };
 
 TEST_F(Day01Test, Example)
 {
-    std::pair<bool, std::uint32_t> result{problem_.part1("examples/01.txt")};
+    std::pair<bool, std::uint32_t> result{problem_.part1()};
     if (result.first) {
         EXPECT_EQ(result.second, 514579U);
     }

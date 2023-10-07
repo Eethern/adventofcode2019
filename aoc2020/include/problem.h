@@ -9,19 +9,21 @@
 class Problem {
 public:
     Problem() = default;
+    Problem(const std::string& input) : input_(input) {}
 
-    virtual std::pair<bool, std::uint32_t> part1(std::string const& file_name) {
-        static_cast<void>(file_name);
+    virtual std::pair<bool, std::uint32_t> part1() {
         return {false, NULL};
     }
-    virtual std::pair<bool, std::uint32_t> part2(std::string const& file_name) {
-        static_cast<void>(file_name);
+    virtual std::pair<bool, std::uint32_t> part2() {
         return {false, NULL};
     }
 
-    void run(std::string const& file_name);
+    void run();
 
     bool read_file(std::string const& file_name, std::vector<std::string>& lines);
+
+protected:
+    std::string input_;
 };
 
 
