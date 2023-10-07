@@ -12,7 +12,9 @@
 class Day01 : public Problem
 {
 public:
-    Day01(const std::string& input) : Problem(input) {}
+    Day01(const std::string& input) : Problem(input)
+    {
+    }
     std::pair<bool, std::uint32_t> part1() override
     {
         std::vector<uint32_t> numbers{parse_input(this->input_)};
@@ -32,16 +34,19 @@ public:
         std::sort(numbers.begin(), numbers.end());
 
         for (uint32_t const x : numbers) {
-            if (x > 2020) break;
+            if (x > 2020)
+                break;
 
             for (uint32_t const y : numbers) {
-                if (x + y > 2020) break;
+                if (x + y > 2020)
+                    break;
 
                 for (uint32_t const z : numbers) {
-                    if (x + y + z > 2020) break;
+                    if (x + y + z > 2020)
+                        break;
 
                     if (x + y + z == 2020)
-                        return {true, x*y*z};
+                        return {true, x * y * z};
                 }
             }
         }

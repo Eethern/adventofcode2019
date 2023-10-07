@@ -9,6 +9,7 @@
 class Problem {
 public:
     Problem() = default;
+    ~Problem() = default;
     Problem(const std::string& input) : input_(input) {}
 
     virtual std::pair<bool, std::uint32_t> part1() {
