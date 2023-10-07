@@ -37,7 +37,20 @@ public:
 
     std::pair<bool, std::uint32_t> part2() override
     {
-        return {false, NULL};
+        std::vector<Password> passwords{parse_input()};
+        size_t valid_passwords{0U};
+        for (Password const& pass : passwords) {
+            size_t count{0U};
+
+            if (pass.letter == pass.password.at(pass.min-1))
+                count++;
+            if (pass.letter == pass.password.at(pass.max-1))
+                count++;
+
+            if (count == 1)
+                valid_passwords++;
+        }
+        return {true, valid_passwords};
     }
 
 private:
@@ -60,8 +73,6 @@ private:
         line.erase(0, pos + space.length());
 
         std::string password = line;
-
-        std::cout << min << "," << max << "," << letter << "," << line << std::endl;
 
         return {letter, min, max, password};
     }
