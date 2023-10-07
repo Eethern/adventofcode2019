@@ -15,7 +15,7 @@ pub enum AOCError {
 
 pub fn main() {
     let start = Instant::now();
-    for day in [1..21] {
+    for day in 1..=24 {
         match run_day(day) {
             Ok(_) => (),
             Err(e) => println!("[DAY {:02}] {:?}", day, e),
