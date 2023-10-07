@@ -1,7 +1,9 @@
 #include "problem.h"
 #include <fstream>
+#include <chrono>
 
-bool Problem::read_file(std::string const& file_name, std::vector<std::string>& lines) {
+bool Problem::read_file(std::string const& file_name, std::vector<std::string>& lines)
+{
     std::ifstream file(file_name);
 
     if (!file.is_open()) {
@@ -20,18 +22,29 @@ bool Problem::read_file(std::string const& file_name, std::vector<std::string>& 
 
 void Problem::run(std::string const& file_name)
 {
+    using namespace std::chrono;
+    high_resolution_clock::time_point part1_t1 = high_resolution_clock::now();
     std::pair<bool, std::uint32_t> result_part1{this->part1(file_name)};
+    high_resolution_clock::time_point part1_t2 = high_resolution_clock::now();
+    duration<double> part1_time_span = duration_cast<microseconds>(part1_t2 - part1_t1);
 
+    std::cout << "Part1 (" << part1_time_span.count() << "µs): ";
     if (result_part1.first) {
-        std::cout << "Part1: " << result_part1.second << std::endl;
+        std::cout << result_part1.second << std::endl;
     } else {
-        std::cout << "Part1: not implemented" << std::endl;
+        std::cout << "not implemented " << std::endl;
     }
 
+    high_resolution_clock::time_point part2_t1 = high_resolution_clock::now();
     std::pair<bool, std::uint32_t> result_part2{this->part2(file_name)};
+    high_resolution_clock::time_point part2_t2 = high_resolution_clock::now();
+    duration<double> part2_time_span =
+        duration_cast<microseconds>(part2_t2 - part2_t1);
+
+    std::cout << "Part2 (" << part2_time_span.count() << "µs): ";
     if (result_part2.first) {
-        std::cout << "Part2: " << result_part2.second << std::endl;
+        std::cout << result_part2.second << std::endl;
     } else {
-        std::cout << "Part2: not implemented" << std::endl;
+        std::cout << "not implemented " << std::endl;
     }
 }

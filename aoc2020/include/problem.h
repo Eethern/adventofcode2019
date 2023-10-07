@@ -10,8 +10,14 @@ class Problem {
 public:
     Problem() = default;
 
-    virtual std::pair<bool, std::uint32_t> part1(std::string const& file_name) = 0;
-    virtual std::pair<bool, std::uint32_t> part2(std::string const& file_name) = 0;
+    virtual std::pair<bool, std::uint32_t> part1(std::string const& file_name) {
+        static_cast<void>(file_name);
+        return {false, NULL};
+    }
+    virtual std::pair<bool, std::uint32_t> part2(std::string const& file_name) {
+        static_cast<void>(file_name);
+        return {false, NULL};
+    }
 
     void run(std::string const& file_name);
 
