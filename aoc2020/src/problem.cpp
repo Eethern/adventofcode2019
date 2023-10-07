@@ -26,7 +26,7 @@ void Problem::run()
     high_resolution_clock::time_point part1_t1 = high_resolution_clock::now();
     std::pair<bool, std::uint32_t> result_part1{this->part1()};
     high_resolution_clock::time_point part1_t2 = high_resolution_clock::now();
-    duration<double> part1_time_span = duration_cast<microseconds>(part1_t2 - part1_t1);
+    auto part1_time_span = duration_cast<microseconds>(part1_t2 - part1_t1);
 
     std::cout << "Part1 (" << part1_time_span.count() << "µs): ";
     if (result_part1.first) {
@@ -38,7 +38,7 @@ void Problem::run()
     high_resolution_clock::time_point part2_t1 = high_resolution_clock::now();
     std::pair<bool, std::uint32_t> result_part2{this->part2()};
     high_resolution_clock::time_point part2_t2 = high_resolution_clock::now();
-    duration<double> part2_time_span = duration_cast<microseconds>(part2_t2 - part2_t1);
+    auto part2_time_span = duration_cast<microseconds>(part2_t2 - part2_t1);
 
     std::cout << "Part2 (" << part2_time_span.count() << "µs): ";
     if (result_part2.first) {
