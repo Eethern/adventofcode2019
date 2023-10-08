@@ -10,7 +10,7 @@ int main()
     days.push_back(new Day02("inputs/02.txt"));
 
     size_t day = 1;
-    for (auto &&d : days) {
+    for (Problem *&d : days) {
         std::cout << "Day " << day << "\n";
         d->run();
         day++;

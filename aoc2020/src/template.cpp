@@ -6,12 +6,12 @@ public:
     Template(const std::string& input) : Problem(input)
     {
     }
-    std::pair<bool, std::uint32_t> part1() override
+    std::pair<bool, std::uint64_t> part1() override
     {
         return {false, NULL};
     }
 
-    std::pair<bool, std::uint32_t> part2() override
+    std::pair<bool, std::uint64_t> part2() override
     {
         return {false, NULL};
     }
@@ -24,20 +24,20 @@ private:
     }
 };
 
-class DayTemplateTest : public ::testing::Test
+class TemplateTest : public ::testing::Test
 {
 protected:
     Template problem_{"example/template.txt"};
 };
 
-TEST_F(DayTemplateTest, part1)
+TEST_F(TemplateTest, part1)
 {
-    std::pair<bool, std::uint32_t> result{problem_.part1()};
+    std::pair<bool, std::uint64_t> result{problem_.part1()};
     (void) result;
 }
 
-TEST_F(DayTemplateTest, part2)
+TEST_F(TemplateTest, part2)
 {
-    std::pair<bool, std::uint32_t> result{problem_.part2()};
+    std::pair<bool, std::uint64_t> result{problem_.part2()};
     (void) result;
 }

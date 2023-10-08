@@ -18,7 +18,7 @@ public:
     Day02(const std::string& input) : Problem(input)
     {
     }
-    std::pair<bool, std::uint32_t> part1() override
+    std::pair<bool, std::uint64_t> part1() override
     {
         std::vector<Password> passwords{parse_input()};
         size_t valid_passwords{0U};
@@ -37,7 +37,7 @@ public:
         return {true, valid_passwords};
     }
 
-    std::pair<bool, std::uint32_t> part2() override
+    std::pair<bool, std::uint64_t> part2() override
     {
         std::vector<Password> passwords{parse_input()};
         size_t valid_passwords{0U};
@@ -90,12 +90,12 @@ protected:
 
 TEST_F(Day02Test, part1)
 {
-    std::pair<bool, std::uint32_t> result{problem_.part1()};
+    std::pair<bool, std::uint64_t> result{problem_.part1()};
     (void)result;
 }
 
 TEST_F(Day02Test, part2)
 {
-    std::pair<bool, std::uint32_t> result{problem_.part2()};
+    std::pair<bool, std::uint64_t> result{problem_.part2()};
     (void)result;
 }

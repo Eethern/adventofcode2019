@@ -12,10 +12,10 @@ public:
     ~Problem() = default;
     Problem(const std::string& input) : input_(input) {}
 
-    virtual std::pair<bool, std::uint32_t> part1() {
+    virtual std::pair<bool, std::uint64_t> part1() {
         return {false, NULL};
     }
-    virtual std::pair<bool, std::uint32_t> part2() {
+    virtual std::pair<bool, std::uint64_t> part2() {
         return {false, NULL};
     }
 

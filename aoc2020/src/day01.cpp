@@ -15,7 +15,7 @@ public:
     Day01(const std::string& input) : Problem(input)
     {
     }
-    std::pair<bool, std::uint32_t> part1() override
+    std::pair<bool, std::uint64_t> part1() override
     {
         std::vector<uint32_t> numbers{parse_input(this->input_)};
         for (uint32_t const& first : numbers) {
@@ -28,7 +28,7 @@ public:
         return {false, NULL};
     }
 
-    std::pair<bool, std::uint32_t> part2() override
+    std::pair<bool, std::uint64_t> part2() override
     {
         std::vector<uint32_t> numbers{parse_input(this->input_)};
         std::sort(numbers.begin(), numbers.end());
@@ -77,7 +77,7 @@ protected:
 
 TEST_F(Day01Test, Example)
 {
-    std::pair<bool, std::uint32_t> result{problem_.part1()};
+    std::pair<bool, std::uint64_t> result{problem_.part1()};
     if (result.first) {
         EXPECT_EQ(result.second, 514579U);
     }
