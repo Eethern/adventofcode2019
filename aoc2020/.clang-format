@@ -4,7 +4,7 @@ Language: Cpp
 Standard: Cpp03
 TabWidth: 4
 UseTab: Never
-ColumnLimit: 120
+ColumnLimit: 80
 NamespaceIndentation: All
 
 AccessModifierOffset: -4
