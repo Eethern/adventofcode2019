@@ -13,3 +13,10 @@ public:
     std::pair<bool, std::uint64_t> part1() override;
     std::pair<bool, std::uint64_t> part2() override;
 };
+
+class Day03 : public Problem {
+public:
+    Day03(const std::string& input) : Problem(input) {}
+    std::pair<bool, std::uint64_t> part1() override;
+    std::pair<bool, std::uint64_t> part2() override;
+};
