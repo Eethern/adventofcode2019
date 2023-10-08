@@ -27,7 +27,7 @@ private:
 class TemplateTest : public ::testing::Test
 {
 protected:
-    Template problem_{"example/template.txt"};
+    Template problem_{"examples/template.txt"};
 };
 
 TEST_F(TemplateTest, part1)

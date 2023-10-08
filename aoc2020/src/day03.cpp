@@ -66,7 +66,7 @@ private:
     }
 };
 
-#define TEST_FILE "example/03.txt"
+#define TEST_FILE "examples/03.txt"
 
 class Day03Test : public ::testing::Test
 {

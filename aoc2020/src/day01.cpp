@@ -72,7 +72,7 @@ private:
 class Day01Test : public ::testing::Test
 {
 protected:
-    Day01 problem_{"example/01.txt"};
+    Day01 problem_{"examples/01.txt"};
 };
 
 TEST_F(Day01Test, Example)
