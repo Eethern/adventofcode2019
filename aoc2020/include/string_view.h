@@ -1,9 +1,12 @@
 #ifndef STRING_VIEW_H
 #define STRING_VIEW_H
 
+#include <cassert>
 #include <cctype>
 #include <cstdint>
 #include <cstddef>
+#include <cstring>
+#include <iostream>
 #include <string>
 
 template <typename CharT>
@@ -22,6 +25,14 @@ public:
         , size_(other.size_) {}
 
     BasicStringView& operator=(const BasicStringView& other) = default;
+    bool operator==(const BasicStringView& other) const
+    {
+        if (size_ != other.size()) {
+            return false;
+        } else {
+            return memcmp(data_, other.data(), size_) == 0;
+        }
+    }
 
     constexpr const CharT* begin() const noexcept {
         return data_;
@@ -43,6 +54,7 @@ public:
     }
 
     constexpr const CharT& operator[](std::size_t pos) const {
+        assert(pos < size_);
         return data_[pos];
     }
 
@@ -74,6 +86,45 @@ public:
         }
 
         return result;
+    }
+
+    BasicStringView chop_by_sv(BasicStringView const delim)
+    {
+        BasicStringView window{data_, delim.size()};
+        size_t i{0U};
+        while (i + delim.size() < size_ && !(window == delim)) {
+            i++;
+            window.data_++;
+        }
+
+        size_t result_size{i};
+        if (i + delim.size() == size_) {
+            result_size += delim.size();
+        }
+
+        BasicStringView result{data_, result_size};
+
+        data_ += i + delim.size();
+        size_ -= i + delim.size();
+
+        return result;
+    }
+
+    bool starts_with(BasicStringView const expected_prefix) const
+    {
+        if (expected_prefix.size() <= size_) {
+            BasicStringView actual_prefix{data_, expected_prefix.size()};
+            return expected_prefix == actual_prefix;
+        }
+
+        return false;
+    }
+
+    void print() const
+    {
+        for (const CharT& c : *this) {
+            std::cout << c;
+        }
     }
 
 private:
