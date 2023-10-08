@@ -13,16 +13,24 @@ template <typename CharT>
 class BasicStringView
 {
 public:
-    constexpr BasicStringView() noexcept : data_(nullptr), size_(0U) {}
+    constexpr BasicStringView() noexcept : data_(nullptr), size_(0U)
+    {
+    }
     constexpr BasicStringView(const CharT* str) noexcept
-        : data_(str)
-        , size_(str ? std::char_traits<CharT>::length(str) : 0) {}
+        : data_(str),
+          size_(str ? std::char_traits<CharT>::length(str) : 0)
+    {
+    }
     constexpr BasicStringView(const CharT* str, std::size_t size) noexcept
-        : data_(str)
-        , size_(size) {}
+        : data_(str),
+          size_(size)
+    {
+    }
     constexpr BasicStringView(const BasicStringView& other) noexcept
-        : data_(other.data_)
-        , size_(other.size_) {}
+        : data_(other.data_),
+          size_(other.size_)
+    {
+    }
 
     BasicStringView& operator=(const BasicStringView& other) = default;
     bool operator==(const BasicStringView& other) const
@@ -34,26 +42,32 @@ public:
         }
     }
 
-    constexpr const CharT* begin() const noexcept {
+    constexpr const CharT* begin() const noexcept
+    {
         return data_;
     }
-    constexpr const CharT* end() const noexcept {
+    constexpr const CharT* end() const noexcept
+    {
         return data_ + size_;
     }
 
-    constexpr std::size_t size() const noexcept {
+    constexpr std::size_t size() const noexcept
+    {
         return size_;
     }
 
-    constexpr bool empty() const noexcept {
+    constexpr bool empty() const noexcept
+    {
         return data_;
     }
 
-    constexpr const CharT* data() const noexcept {
+    constexpr const CharT* data() const noexcept
+    {
         return data_;
     }
 
-    constexpr const CharT& operator[](std::size_t pos) const {
+    constexpr const CharT& operator[](std::size_t pos) const
+    {
         assert(pos < size_);
         return data_[pos];
     }
@@ -120,11 +134,19 @@ public:
         return false;
     }
 
-    void print() const
+    bool ends_with(BasicStringView const expected_suffix) const
     {
-        for (const CharT& c : *this) {
-            std::cout << c;
+        if (expected_suffix.size() <= size_) {
+            BasicStringView actual_suffix{
+                data_ + size_ - expected_suffix.size(), expected_suffix.size()};
+            return expected_suffix == actual_suffix;
         }
+        return false;
+    }
+
+    std::string to_string() const
+    {
+        return std::string(data_, size_);
     }
 
 private:
