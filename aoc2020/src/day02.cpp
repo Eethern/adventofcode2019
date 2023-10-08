@@ -1,6 +1,8 @@
 #include "problem.h"
+#include "string_view.h"
 #include <string.h>
 #include <gtest/gtest.h>
+#include <string>
 
 typedef struct
 {
@@ -56,23 +58,14 @@ public:
 private:
     Password parse_entry(std::string& line)
     {
-        // Should probably implement a string view for this
-        std::string dash = "-";
-        std::string space = " ";
+        StringView sv{line.c_str()};
 
-        size_t pos = line.find(dash);
-        size_t min = stoi(line.substr(0, pos));
-        line.erase(0, pos + dash.length());
-
-        pos = line.find(space);
-        size_t max = stoi(line.substr(0, pos));
-        line.erase(0, pos + space.length());
-
-        pos = line.find(space);
-        char letter = line.substr(0, pos)[0];
-        line.erase(0, pos + space.length());
-
-        std::string password = line;
+        sv = sv.trim_left();
+        std::size_t min = std::stoi(sv.chop_by_delim('-').data());
+        std::size_t max = std::stoi(sv.chop_by_delim(' ').data());
+        char letter = sv.chop_by_delim(':')[0];
+        sv.chop_by_delim(' ');
+        std::string password(sv.data());
 
         return {letter, min, max, password};
     }
