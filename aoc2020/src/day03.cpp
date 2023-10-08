@@ -42,14 +42,14 @@ public:
         for (Slope const& slope : slopes) {
             std::uint64_t num_collisions{count_collisions(lines, slope)};
             acc *= num_collisions;
-            std::cout << num_collisions << ',' << acc << "\n";
         }
 
         return {true, acc};
     }
 
 private:
-    std::uint64_t count_collisions(std::vector<std::string> const& lines, Slope const& slope)
+    std::uint64_t count_collisions(std::vector<std::string> const& lines,
+                                   Slope const& slope)
     {
         std::uint64_t height{static_cast<std::uint64_t>(lines.size())};
         std::uint64_t width{static_cast<std::uint64_t>(lines[0U].size())};
