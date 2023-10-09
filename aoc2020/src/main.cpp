@@ -12,6 +12,7 @@ int main()
     days.push_back(new Day03("inputs/03.txt"));
     days.push_back(new Day04("inputs/04.txt"));
     days.push_back(new Day05("inputs/05.txt"));
+    days.push_back(new Day06("inputs/06.txt"));
 
     size_t day = 1;
     for (Problem *&d : days) {
