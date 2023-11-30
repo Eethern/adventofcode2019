@@ -1,0 +1,7 @@
+[
+  {
+    "directory": "/home/eethern/Projects/adventofcode/aoc2023",
+    "command": "g++ -Wall -Wextra -std=c++14 -pedantic -o bin/main src/main.cpp src/problem.cpp -I include/ -lgtest -lgtest_main",
+    "file": "src/main.cpp"
+  }
+]
