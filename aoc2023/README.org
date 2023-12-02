@@ -2,3 +2,4 @@
 I am limiting this to c++14 because it's what my work uses.
 - DAY 1 :: Tokenizer implementation, but it ended up quite messy due to the
   non-space deliminated words, as well as merging of tokens like =oneight=
+- DAY 2 :: Basic parsing with string view, nothing complex.
