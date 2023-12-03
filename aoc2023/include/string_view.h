@@ -17,6 +17,10 @@ public:
     constexpr BasicStringView() noexcept : data_(nullptr), size_(0U)
     {
     }
+    constexpr BasicStringView(std::string const& str) noexcept
+    : data_(str.c_str()), size_(str.length())
+    {
+    }
     constexpr BasicStringView(const CharT* str) noexcept
         : data_(str),
           size_(str ? std::char_traits<CharT>::length(str) : 0)
@@ -73,19 +77,34 @@ public:
         return data_[pos];
     }
 
-
-    void seek_mut(size_t n)
+    BasicStringView take_mut(size_t n)
     {
         size_t forward = std::min<size_t>(n, size_);
         data_ += forward;
         size_ -= forward;
+
+        return {data_ - forward, forward};
     }
 
-    BasicStringView seek(size_t n) const
+    BasicStringView take(size_t n)
     {
         size_t forward = std::min<size_t>(n, size_);
 
-        return {data_ + forward, size_ - forward};
+        return {data_, forward};
+    }
+
+    void forward_mut(size_t n)
+    {
+        size_t seek = std::min<size_t>(n, size_);
+        data_ += seek;
+        size_ -= seek;
+    }
+
+    BasicStringView forward(size_t n) const
+    {
+        size_t seek = std::min<size_t>(n, size_);
+
+        return {data_ + seek, size_ - seek};
     }
 
     BasicStringView trim_left() const
@@ -161,14 +180,6 @@ public:
 
         size_ -= i;
         data_ += i;
-
-        // if (i < size_) {
-        //     size_ -= i + 1;
-        //     data_ += i + 1;
-        // } else {
-        //     size_ -= i;
-        //     data_ += i;
-        // }
 
         return result;
     }

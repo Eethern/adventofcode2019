@@ -1,6 +1,8 @@
 * AOC 2023 in c++
 I am limiting this to c++14 because it's what my work uses.
 - DAY 1 :: Tokenizer implementation, but it ended up quite messy due to the
-  non-space deliminated words, as well as merging of tokens like =oneight=
+  non-space deliminated words, as well as merging of tokens like =oneight=. Later
+  rewrote it to parse for first number from begin, and for the last number from
+  end.
 - DAY 2 :: Basic parsing with string view, nothing complex.
 - DAY 3 :: Most of the difficulty was parsing, but SV made it easier

@@ -1,119 +1,52 @@
+#include <algorithm>
+#include <cassert>
 #include <vector>
 #include <cstdint>
 #include "problem.h"
+#include "string_view.h"
 
 #include <gtest/gtest.h>
 
-enum class TokenType
-{
-    Undefined = 0,
-    Digit,
-    AlphaDigit,
-    EndOfInput,
+const std::map<std::string, char> KEYWORDS_TRANSLATE = {
+    {"one", '1'}, {"two", '2'},   {"three", '3'}, {"four", '4'}, {"five", '5'},
+    {"six", '6'}, {"seven", '7'}, {"eight", '8'}, {"nine", '9'},
 };
 
-struct Token
-{
-    TokenType type;
-    std::string value;
+const std::map<std::string, char> KEYWORDS_TRANSLATE_REV = {
+    {"eno", '1'}, {"owt", '2'},   {"eerht", '3'}, {"ruof", '4'}, {"evif", '5'},
+    {"xis", '6'}, {"neves", '7'}, {"thgie", '8'}, {"enin", '9'},
 };
 
-const std::map<std::string, std::string> KEYWORDS_TRANSLATE = {
-    {"one", "1"}, {"two", "2"},   {"three", "3"}, {"four", "4"}, {"five", "5"},
-    {"six", "6"}, {"seven", "7"}, {"eight", "8"}, {"nine", "9"},
-};
-
-std::string tokentype_to_string(TokenType type)
+char find_first_digit(std::string const& line,
+                      std::map<std::string, char> const& translation_map)
 {
-    switch (type) {
-        case TokenType::Undefined:
-            return "Undefined";
-        case TokenType::Digit:
-            return "Digit";
-        case TokenType::AlphaDigit:
-            return "AlphaDigit";
-        case TokenType::EndOfInput:
-            return "<eol>";
-    }
-    return "WARNING: UNKNOWN token";
-}
-
-class Tokenizer
-{
-public:
-    Tokenizer(const std::string& input) : input_(input), cursor_(0U)
-    {
-    }
-
-    std::pair<bool, Token> next_token()
-    {
-        if (cursor_ >= input_.size()) {
-            return {true, {TokenType::EndOfInput, "<end>"}};
-        }
-
-        char current_char{input_[cursor_]};
-
-        if (std::isdigit(current_char)) {
-            ++cursor_;
-            return {true, {TokenType::Digit, std::string(1, current_char)}};
-        } else if (std::isalpha(current_char)) {
-            return read_alpha_digit();
+    for (size_t i{0U}; i < line.length(); ++i) {
+        char c = line.at(i);
+        if (isdigit(c)) {
+            return c;
         } else {
-            return {false, {TokenType::Undefined, ""}};
-        }
-    }
+            StringView line_sv{line.c_str()};
+            StringView substr_sv{line_sv.chop_while(isalpha)};
+            size_t chopped_size{substr_sv.size()};
 
-    std::vector<Token> tokenize()
-    {
-        std::vector<Token> tokens{};
-        Token next{TokenType::Undefined, ""};
-        while (next.type != TokenType::EndOfInput) {
-            std::pair<bool, Token> n{next_token()};
-
-            if (n.first && n.second.type != TokenType::EndOfInput) {
-                tokens.push_back(n.second);
-            }
-
-            next = n.second;
-        }
-        return tokens;
-    }
-
-private:
-    std::pair<bool, Token> read_alpha_digit()
-    {
-        std::stringstream stream;
-        char curr{input_[cursor_]};
-        while (cursor_ < input_.size() && std::isalpha(curr)) {
-            stream << curr;
-            ++cursor_;
-            curr = input_[cursor_];
-
-            for (auto it = KEYWORDS_TRANSLATE.begin();
-                 it != KEYWORDS_TRANSLATE.end(); it++) {
-                std::string const& key{it->first};
-                if (stream.str() == key) {
-                    cursor_ += -key.size() + 2;
-                    return {
-                        true,
-                        {TokenType::AlphaDigit, KEYWORDS_TRANSLATE.at(key)}};
+            while (substr_sv.size() > 2U) {
+                for (auto it = translation_map.begin();
+                     it != translation_map.end(); it++) {
+                    std::string const& key{it->first};
+                    StringView key_sv{key.c_str()};
+                    if (substr_sv.starts_with(key_sv)) {
+                        return it->second;
+                    }
                 }
-
-                if (stream.str().find(key) != std::string::npos) {
-                    cursor_ += -key.size() + 2;
-                    return {
-                        true,
-                        {TokenType::AlphaDigit, KEYWORDS_TRANSLATE.at(key)}};
-                }
+                substr_sv.forward_mut(1);
             }
+            i += chopped_size - 1U;
         }
 
-        return {false, {TokenType::Undefined, ""}};
     }
 
-    std::string input_;
-    std::size_t cursor_;
-};
+    return '_';  // found nothing
+}
 
 class Day01 : public Problem
 {
@@ -135,18 +68,29 @@ public:
     std::pair<bool, std::uint64_t> part1() override
     {
         std::vector<std::string> lines;
-        this->read_file(this->input_, lines);
+        read_file(input_, lines);
 
         uint32_t acc{0U};
         for (const std::string& line : lines) {
-            std::vector<char> number{};
+            uint32_t first{0U};
             for (const char c : line) {
                 if (std::isdigit(c)) {
-                    number.push_back(c);
+                    first = c;
+                    break;
                 }
             }
 
-            acc += two_digits_to_uint32(number.front(), number.back());
+            uint32_t last{0U};
+            for (int32_t i{static_cast<int32_t>(line.length()) - 1}; i >= 0;
+                 --i) {
+                char c = line.at(static_cast<size_t>(i));
+                if (std::isdigit(c)) {
+                    last = c;
+                    break;
+                }
+            }
+
+            acc += two_digits_to_uint32(first, last);
         }
 
         return {true, acc};
@@ -155,14 +99,14 @@ public:
     std::pair<bool, std::uint64_t> part2() override
     {
         std::vector<std::string> lines;
-        this->read_file(this->input_, lines);
+        read_file(input_, lines);
 
         uint32_t acc{0U};
-        for (const std::string& line : lines) {
-            Tokenizer tokenizer{line};
-            std::vector<Token> tokens{tokenizer.tokenize()};
-            acc += two_digits_to_uint32(tokens.front().value.at(0U),
-                                        tokens.back().value.at(0U));
+        for (std::string& line : lines) {
+            char first{find_first_digit(line, KEYWORDS_TRANSLATE)};
+            std::string line_rev(line.rbegin(), line.rend());
+            char last{find_first_digit(line_rev, KEYWORDS_TRANSLATE_REV)};
+            acc += two_digits_to_uint32(first, last);
         }
 
         return {true, acc};

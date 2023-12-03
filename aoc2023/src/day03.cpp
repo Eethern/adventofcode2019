@@ -47,7 +47,7 @@ Schematic parse_schematic(std::vector<std::string> const& lines)
             if (c == '.') {
                 column++;
             } else if (isdigit(c)) {
-                uint64_t num{(line_sv.seek(column).chop_u64())};
+                uint64_t num{(line_sv.forward(column).chop_u64())};
                 PartNumber part{{}, num};
                 while (isdigit(c)) {
                     part.coords.push_back({column, row});
