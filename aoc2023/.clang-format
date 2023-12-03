@@ -28,5 +28,3 @@ AllowShortLoopsOnASingleLine: false
 AlignTrailingComments: true
 ReflowComments: false
 SortIncludes: false
-
-...
