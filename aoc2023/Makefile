@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++14 -pedantic
+CXXFLAGS = -Wall -Wextra -std=c++14 -pedantic -O3
 LIBS = -lgtest -lgtest_main
 SRC_DIR = src/
 INCLUDE = include/
