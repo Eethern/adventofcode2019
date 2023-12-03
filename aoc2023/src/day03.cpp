@@ -1,10 +1,15 @@
-#include "problem.h"
 #include <gtest/gtest.h>
+
 #include <cctype>
+
+#include "problem.h"
 #include "string_view.h"
 
-struct XY final
-{
+// TODOs:
+// - Partition into blocks for better cache locality
+// - Should be able to simd reduce the check for neighbors
+
+struct XY final {
     int32_t x;
     int32_t y;
 };
@@ -15,26 +20,22 @@ constexpr XY NEIGHBORS[9] = {
     {-1, 1}, {1, -1}, {1, 0}, {1, 1},
 };
 
-struct Symbol final
-{
+struct Symbol final {
     XY coord;
     char symbol;
 };
 
-struct PartNumber final
-{
+struct PartNumber final {
     std::vector<XY> coords;
     uint64_t value;
 };
 
-struct Schematic final
-{
+struct Schematic final {
     std::vector<PartNumber> parts;
     std::vector<Symbol> symbols;
 };
 
-Schematic parse_schematic(std::vector<std::string> const& lines)
-{
+Schematic parse_schematic(std::vector<std::string> const& lines) {
     Schematic schematic{};
 
     int32_t row{0};
@@ -75,8 +76,7 @@ Schematic parse_schematic(std::vector<std::string> const& lines)
     return schematic;
 }
 
-void print_schematic(Schematic const& schematic)
-{
+void print_schematic(Schematic const& schematic) {
     for (PartNumber const& part : schematic.parts) {
         std::cout << part.value << "\n";
         for (XY const& coord : part.coords) {
@@ -91,14 +91,11 @@ void print_schematic(Schematic const& schematic)
     }
 }
 
-class Day03 : public Problem
-{
+class Day03 : public Problem {
 public:
-    Day03(const std::string& input) : Problem(input)
-    {
+    Day03(const std::string& input) : Problem(input) {
     }
-    std::pair<bool, std::uint64_t> part1() override
-    {
+    std::pair<bool, std::uint64_t> part1() override {
         std::vector<std::string> lines;
         read_file(input_, lines);
         Schematic const schematic{parse_schematic(lines)};
@@ -128,8 +125,7 @@ public:
         return {true, answer};
     }
 
-    std::pair<bool, std::uint64_t> part2() override
-    {
+    std::pair<bool, std::uint64_t> part2() override {
         std::vector<std::string> lines;
         read_file(input_, lines);
         Schematic const schematic{parse_schematic(lines)};
@@ -141,7 +137,8 @@ public:
             for (PartNumber const& part : schematic.parts) {
                 bool part_counted{false};
                 for (XY const& xy : part.coords) {
-                    if (part_counted) break;
+                    if (part_counted)
+                        break;
                     for (XY const& offset : NEIGHBORS) {
                         if (xy.x + offset.x == sym.coord.x &&
                             xy.y + offset.y == sym.coord.y &&
@@ -164,15 +161,13 @@ public:
     }
 
 private:
-    std::vector<uint32_t> parse_input(std::string const& file_name)
-    {
+    std::vector<uint32_t> parse_input(std::string const& file_name) {
         (void)file_name;
         return {};
     }
 };
 
-class Day03Test : public ::testing::Test
-{
+class Day03Test : public ::testing::Test {
 protected:
     Day03 problem_{"examples/03.txt"};
     std::string example{
@@ -188,14 +183,12 @@ protected:
         ".664.598.."};
 };
 
-TEST_F(Day03Test, part1)
-{
+TEST_F(Day03Test, part1) {
     std::pair<bool, std::uint64_t> result{problem_.part1()};
     (void)result;
 }
 
-TEST_F(Day03Test, part2)
-{
+TEST_F(Day03Test, part2) {
     std::pair<bool, std::uint64_t> result{problem_.part2()};
     (void)result;
 }

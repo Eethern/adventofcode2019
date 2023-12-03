@@ -1,11 +1,12 @@
+#include <gtest/gtest.h>
+
 #include <algorithm>
 #include <cassert>
-#include <vector>
 #include <cstdint>
+#include <vector>
+
 #include "problem.h"
 #include "string_view.h"
-
-#include <gtest/gtest.h>
 
 const std::map<std::string, char> KEYWORDS_TRANSLATE = {
     {"one", '1'}, {"two", '2'},   {"three", '3'}, {"four", '4'}, {"five", '5'},
@@ -18,8 +19,7 @@ const std::map<std::string, char> KEYWORDS_TRANSLATE_REV = {
 };
 
 char find_first_digit(std::string const& line,
-                      std::map<std::string, char> const& translation_map)
-{
+                      std::map<std::string, char> const& translation_map) {
     for (size_t i{0U}; i < line.length(); ++i) {
         char c = line.at(i);
         if (isdigit(c)) {
@@ -42,21 +42,17 @@ char find_first_digit(std::string const& line,
             }
             i += chopped_size - 1U;
         }
-
     }
 
     return '_';  // found nothing
 }
 
-class Day01 : public Problem
-{
+class Day01 : public Problem {
 public:
-    Day01(const std::string& input) : Problem(input)
-    {
+    Day01(const std::string& input) : Problem(input) {
     }
 
-    uint32_t two_digits_to_uint32(char a, char b) const
-    {
+    uint32_t two_digits_to_uint32(char a, char b) const {
         if (!isdigit(a) || !isdigit(b)) {
             std::cerr << "Invalid digit: " << a << "," << b << std::endl;
             exit(0);
@@ -65,8 +61,7 @@ public:
         return out;
     }
 
-    std::pair<bool, std::uint64_t> part1() override
-    {
+    std::pair<bool, std::uint64_t> part1() override {
         std::vector<std::string> lines;
         read_file(input_, lines);
 
@@ -96,8 +91,7 @@ public:
         return {true, acc};
     }
 
-    std::pair<bool, std::uint64_t> part2() override
-    {
+    std::pair<bool, std::uint64_t> part2() override {
         std::vector<std::string> lines;
         read_file(input_, lines);
 
@@ -113,19 +107,15 @@ public:
     }
 };
 
-class Day01Test : public ::testing::Test
-{
-};
+class Day01Test : public ::testing::Test {};
 
-TEST_F(Day01Test, part1)
-{
+TEST_F(Day01Test, part1) {
     Day01 problem_{"examples/01a.txt"};
     std::pair<bool, std::uint64_t> result{problem_.part1()};
     (void)result;
 }
 
-TEST_F(Day01Test, part2)
-{
+TEST_F(Day01Test, part2) {
     Day01 problem_{"examples/01b.txt"};
     std::pair<bool, std::uint64_t> result{problem_.part2()};
     (void)result;

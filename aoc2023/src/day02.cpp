@@ -1,38 +1,34 @@
-#include "problem.h"
-#include "string_view.h"
 #include <gtest/gtest.h>
+
 #include <algorithm>
 #include <limits>
 #include <string>
 
-struct Pull final
-{
+#include "problem.h"
+#include "string_view.h"
+
+struct Pull final {
     uint32_t red;
     uint32_t blue;
     uint32_t green;
 };
 
-struct Game final
-{
+struct Game final {
     uint32_t id;
     std::vector<Pull> pulls;
 };
 
-class Day02 : public Problem
-{
+class Day02 : public Problem {
 public:
-    Day02(const std::string& input) : Problem(input)
-    {
+    Day02(const std::string& input) : Problem(input) {
     }
-    std::pair<bool, std::uint64_t> part1() override
-    {
+    std::pair<bool, std::uint64_t> part1() override {
         std::vector<std::string> lines;
         this->read_file(this->input_, lines);
 
         std::vector<Game> games{};
 
-        for (std::string const& line : lines)
-        {
+        for (std::string const& line : lines) {
             Game game{parse_game(line)};
             games.push_back(game);
         }
@@ -45,7 +41,8 @@ public:
         for (Game const& game : games) {
             bool valid_game{true};
             for (Pull const& pull : game.pulls) {
-                if (pull.red > max_red || pull.green > max_green || pull.blue > max_blue) {
+                if (pull.red > max_red || pull.green > max_green ||
+                    pull.blue > max_blue) {
                     valid_game = false;
                     break;
                 }
@@ -58,15 +55,13 @@ public:
         return {true, static_cast<uint64_t>(answer)};
     }
 
-    std::pair<bool, std::uint64_t> part2() override
-    {
+    std::pair<bool, std::uint64_t> part2() override {
         std::vector<std::string> lines;
         this->read_file(this->input_, lines);
 
         std::vector<Game> games{};
 
-        for (std::string const& line : lines)
-        {
+        for (std::string const& line : lines) {
             Game game{parse_game(line)};
             games.push_back(game);
         }
@@ -91,8 +86,7 @@ public:
     }
 
 private:
-    Game parse_game(std::string const& game_raw)
-    {
+    Game parse_game(std::string const& game_raw) {
         StringView sv{game_raw.c_str()};
         sv.chop_by_delim(' ');
 
@@ -105,7 +99,8 @@ private:
             sv_pull = sv_pull.trim_left();
 
             while (sv_pull.size() > 0U) {
-                uint32_t num = std::stoi(sv_pull.chop_by_delim(' ').to_string());
+                uint32_t num =
+                    std::stoi(sv_pull.chop_by_delim(' ').to_string());
                 std::string color{sv_pull.chop_by_delim(',').to_string()};
                 sv_pull = sv_pull.trim_left();
 
@@ -121,27 +116,23 @@ private:
             }
 
             game.pulls.push_back(pull);
-
         }
 
         return game;
     }
 };
 
-class Day02Test : public ::testing::Test
-{
+class Day02Test : public ::testing::Test {
 protected:
     Day02 problem_{"examples/Day02.txt"};
 };
 
-TEST_F(Day02Test, part1)
-{
+TEST_F(Day02Test, part1) {
     std::pair<bool, std::uint32_t> result{problem_.part1()};
     (void)result;
 }
 
-TEST_F(Day02Test, part2)
-{
+TEST_F(Day02Test, part2) {
     std::pair<bool, std::uint32_t> result{problem_.part2()};
     (void)result;
 }

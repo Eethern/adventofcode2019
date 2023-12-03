@@ -3,43 +3,37 @@
 
 #include <cassert>
 #include <cctype>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <functional>
 #include <iostream>
 #include <string>
 
 template <typename CharT>
-class BasicStringView
-{
+class BasicStringView {
 public:
-    constexpr BasicStringView() noexcept : data_(nullptr), size_(0U)
-    {
+    constexpr BasicStringView() noexcept : data_(nullptr), size_(0U) {
     }
     constexpr BasicStringView(std::string const& str) noexcept
-    : data_(str.c_str()), size_(str.length())
-    {
+        : data_(str.c_str()),
+          size_(str.length()) {
     }
     constexpr BasicStringView(const CharT* str) noexcept
         : data_(str),
-          size_(str ? std::char_traits<CharT>::length(str) : 0)
-    {
+          size_(str ? std::char_traits<CharT>::length(str) : 0) {
     }
     constexpr BasicStringView(const CharT* str, std::size_t size) noexcept
         : data_(str),
-          size_(size)
-    {
+          size_(size) {
     }
     constexpr BasicStringView(const BasicStringView& other) noexcept
         : data_(other.data_),
-          size_(other.size_)
-    {
+          size_(other.size_) {
     }
 
     BasicStringView& operator=(const BasicStringView& other) = default;
-    bool operator==(const BasicStringView& other) const
-    {
+    bool operator==(const BasicStringView& other) const {
         if (size_ != other.size()) {
             return false;
         } else {
@@ -47,38 +41,31 @@ public:
         }
     }
 
-    constexpr const CharT* begin() const noexcept
-    {
+    constexpr const CharT* begin() const noexcept {
         return data_;
     }
-    constexpr const CharT* end() const noexcept
-    {
+    constexpr const CharT* end() const noexcept {
         return data_ + size_;
     }
 
-    constexpr std::size_t size() const noexcept
-    {
+    constexpr std::size_t size() const noexcept {
         return size_;
     }
 
-    constexpr bool empty() const noexcept
-    {
+    constexpr bool empty() const noexcept {
         return data_;
     }
 
-    constexpr const CharT* data() const noexcept
-    {
+    constexpr const CharT* data() const noexcept {
         return data_;
     }
 
-    constexpr const CharT& operator[](std::size_t pos) const
-    {
+    constexpr const CharT& operator[](std::size_t pos) const {
         assert(pos < size_);
         return data_[pos];
     }
 
-    BasicStringView take_mut(size_t n)
-    {
+    BasicStringView take_mut(size_t n) {
         size_t forward = std::min<size_t>(n, size_);
         data_ += forward;
         size_ -= forward;
@@ -86,29 +73,25 @@ public:
         return {data_ - forward, forward};
     }
 
-    BasicStringView take(size_t n)
-    {
+    BasicStringView take(size_t n) {
         size_t forward = std::min<size_t>(n, size_);
 
         return {data_, forward};
     }
 
-    void forward_mut(size_t n)
-    {
+    void forward_mut(size_t n) {
         size_t seek = std::min<size_t>(n, size_);
         data_ += seek;
         size_ -= seek;
     }
 
-    BasicStringView forward(size_t n) const
-    {
+    BasicStringView forward(size_t n) const {
         size_t seek = std::min<size_t>(n, size_);
 
         return {data_ + seek, size_ - seek};
     }
 
-    BasicStringView trim_left() const
-    {
+    BasicStringView trim_left() const {
         size_t i{0U};
         while (i < size_ && std::isspace(data_[i])) {
             i += 1;
@@ -117,8 +100,7 @@ public:
         return BasicStringView(data_ + i, size_ - i);
     }
 
-    BasicStringView chop_by_delim(CharT delim)
-    {
+    BasicStringView chop_by_delim(CharT delim) {
         size_t i{0U};
         while (i < size_ && data_[i] != delim) {
             i += 1;
@@ -137,8 +119,7 @@ public:
         return result;
     }
 
-    BasicStringView chop_by_sv(BasicStringView const delim)
-    {
+    BasicStringView chop_by_sv(BasicStringView const delim) {
         BasicStringView window{data_, delim.size()};
         size_t i{0U};
         while (i + delim.size() < size_ && !(window == delim)) {
@@ -159,8 +140,7 @@ public:
         return result;
     }
 
-    uint64_t chop_u64()
-    {
+    uint64_t chop_u64() {
         uint64_t result{0U};
         while (size_ > 0 && isdigit(*data_)) {
             result = result * 10 + static_cast<uint64_t>(*data_ - '0');
@@ -170,8 +150,7 @@ public:
         return result;
     }
 
-    BasicStringView chop_while(std::function<bool(char x)> predicate)
-    {
+    BasicStringView chop_while(std::function<bool(char x)> predicate) {
         size_t i{0U};
         while (i < size_ && predicate(data_[i])) {
             i += 1U;
@@ -184,8 +163,7 @@ public:
         return result;
     }
 
-    uint64_t to_u64() const
-    {
+    uint64_t to_u64() const {
         uint64_t result{0U};
         for (std::size_t i{0U}; i < size_ && isdigit(data_[i]); ++i) {
             result = result * 10 + static_cast<uint64_t>(data_[i] - '0');
@@ -194,8 +172,7 @@ public:
         return result;
     }
 
-    bool starts_with(BasicStringView const expected_prefix) const
-    {
+    bool starts_with(BasicStringView const expected_prefix) const {
         if (expected_prefix.size() <= size_) {
             BasicStringView actual_prefix{data_, expected_prefix.size()};
             return expected_prefix == actual_prefix;
@@ -204,8 +181,7 @@ public:
         return false;
     }
 
-    bool ends_with(BasicStringView const expected_suffix) const
-    {
+    bool ends_with(BasicStringView const expected_suffix) const {
         if (expected_suffix.size() <= size_) {
             BasicStringView actual_suffix{
                 data_ + size_ - expected_suffix.size(), expected_suffix.size()};
@@ -214,18 +190,16 @@ public:
         return false;
     }
 
-    BasicStringView substr(size_t start, size_t end) const
-    {
+    BasicStringView substr(size_t start, size_t end) const {
         start = std::max<size_t>(0, start);
         end = std::min<size_t>(size_, end);
 
-        BasicStringView result{data_+start, end - start};
+        BasicStringView result{data_ + start, end - start};
 
         return result;
     }
 
-    std::string to_string() const
-    {
+    std::string to_string() const {
         return std::string(data_, size_);
     }
 

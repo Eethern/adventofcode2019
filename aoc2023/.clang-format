@@ -5,13 +5,11 @@ Standard: Cpp03
 TabWidth: 4
 UseTab: Never
 ColumnLimit: 80
-NamespaceIndentation: All
 
 AccessModifierOffset: -4
 ContinuationIndentWidth: 4
 IndentWidth: 4
 
-BreakBeforeBraces: Custom
 BraceWrapping:
     AfterStruct: true
     AfterClass: true
@@ -27,4 +25,4 @@ AllowShortLoopsOnASingleLine: false
 
 AlignTrailingComments: true
 ReflowComments: false
-SortIncludes: false
+SortIncludes: true
