@@ -5,14 +5,14 @@
 #include <limits>
 #include <string>
 
-struct Pull
+struct Pull final
 {
     uint32_t red;
     uint32_t blue;
     uint32_t green;
 };
 
-struct Game
+struct Game final
 {
     uint32_t id;
     std::vector<Pull> pulls;
@@ -37,9 +37,9 @@ public:
             games.push_back(game);
         }
 
-        uint32_t max_red{12U};
-        uint32_t max_green{13U};
-        uint32_t max_blue{14U};
+        const uint32_t max_red{12U};
+        const uint32_t max_green{13U};
+        const uint32_t max_blue{14U};
 
         uint32_t answer{0U};
         for (Game const& game : games) {
@@ -73,9 +73,9 @@ public:
 
         uint32_t answer{0U};
         for (Game const& game : games) {
-            uint32_t fewest_red{std::numeric_limits<uint32_t>().min()};
-            uint32_t fewest_blue{std::numeric_limits<uint32_t>().min()};
-            uint32_t fewest_green{std::numeric_limits<uint32_t>().min()};
+            uint32_t fewest_red{0U};
+            uint32_t fewest_blue{0U};
+            uint32_t fewest_green{0U};
 
             for (Pull const& pull : game.pulls) {
                 fewest_red = std::max<uint32_t>(fewest_red, pull.red);
@@ -106,7 +106,8 @@ private:
 
             while (sv_pull.size() > 0U) {
                 uint32_t num = std::stoi(sv_pull.chop_by_delim(' ').to_string());
-                std::string color = sv_pull.chop_by_sv({", "}).to_string();
+                std::string color{sv_pull.chop_by_delim(',').to_string()};
+                sv_pull = sv_pull.trim_left();
 
                 if (color == "blue") {
                     pull.blue = num;
