@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <cstring>
+#include <functional>
 #include <iostream>
 #include <string>
 
@@ -72,6 +73,21 @@ public:
         return data_[pos];
     }
 
+
+    void seek_mut(size_t n)
+    {
+        size_t forward = std::min<size_t>(n, size_);
+        data_ += forward;
+        size_ -= forward;
+    }
+
+    BasicStringView seek(size_t n) const
+    {
+        size_t forward = std::min<size_t>(n, size_);
+
+        return {data_ + forward, size_ - forward};
+    }
+
     BasicStringView trim_left() const
     {
         size_t i{0U};
@@ -124,6 +140,49 @@ public:
         return result;
     }
 
+    uint64_t chop_u64()
+    {
+        uint64_t result{0U};
+        while (size_ > 0 && isdigit(*data_)) {
+            result = result * 10 + static_cast<uint64_t>(*data_ - '0');
+            size_ -= 1U;
+            data_ += 1U;
+        }
+        return result;
+    }
+
+    BasicStringView chop_while(std::function<bool(char x)> predicate)
+    {
+        size_t i{0U};
+        while (i < size_ && predicate(data_[i])) {
+            i += 1U;
+        }
+        BasicStringView result(data_, i);
+
+        size_ -= i;
+        data_ += i;
+
+        // if (i < size_) {
+        //     size_ -= i + 1;
+        //     data_ += i + 1;
+        // } else {
+        //     size_ -= i;
+        //     data_ += i;
+        // }
+
+        return result;
+    }
+
+    uint64_t to_u64() const
+    {
+        uint64_t result{0U};
+        for (std::size_t i{0U}; i < size_ && isdigit(data_[i]); ++i) {
+            result = result * 10 + static_cast<uint64_t>(data_[i] - '0');
+        }
+
+        return result;
+    }
+
     bool starts_with(BasicStringView const expected_prefix) const
     {
         if (expected_prefix.size() <= size_) {
@@ -142,6 +201,16 @@ public:
             return expected_suffix == actual_suffix;
         }
         return false;
+    }
+
+    BasicStringView substr(size_t start, size_t end) const
+    {
+        start = std::max<size_t>(0, start);
+        end = std::min<size_t>(size_, end);
+
+        BasicStringView result{data_+start, end - start};
+
+        return result;
     }
 
     std::string to_string() const
