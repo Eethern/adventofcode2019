@@ -6,9 +6,11 @@
 #include "problem.h"
 #include "string_view.h"
 
+constexpr size_t MAX_NUMBER{100U};
+
 struct Card {
     uint32_t id;
-    std::vector<uint32_t> winning_numbers;
+    uint8_t winning_numbers[MAX_NUMBER];
     std::vector<uint32_t> picked_numbers;
 };
 
@@ -21,6 +23,14 @@ std::vector<uint32_t> parse_numbers(StringView sv) {
     return out;
 }
 
+void parse_winning_numbers(StringView sv, Card& card) {
+    while (sv.size() > 0U) {
+        card.winning_numbers[sv.chop_number<size_t>()] = 1U;
+        sv = sv.trim_left();
+    }
+}
+
+
 Card parse_card(std::string const& line) {
     StringView line_sv{line};
 
@@ -29,11 +39,17 @@ Card parse_card(std::string const& line) {
     line_sv = line_sv.trim_left();
     line_sv.chop_by_delim(' ');
 
+    Card card{};
+    card.id = id;
+
     StringView winning_sv{line_sv.chop_by_sv({" | "})};
-    std::vector<uint32_t> winning_numbers{parse_numbers(winning_sv)};
+    parse_winning_numbers(winning_sv, card);
     std::vector<uint32_t> picked_numbers{parse_numbers(line_sv)};
 
-    return {id, winning_numbers, picked_numbers};
+    card.picked_numbers = picked_numbers;
+
+    return card;
+
 }
 
 std::vector<Card> parse_cards(std::vector<std::string> const& lines) {
@@ -59,10 +75,8 @@ public:
         for (Card card : cards) {
             uint32_t num_matches{0U};
             for (uint32_t picked_number : card.picked_numbers) {
-                for (uint32_t winning_number : card.winning_numbers) {
-                    if (picked_number == winning_number) {
-                        num_matches += 1U;
-                    }
+                if (card.winning_numbers[picked_number] == 1U) {
+                    num_matches += 1U;
                 }
             }
             answer +=
@@ -82,10 +96,8 @@ public:
         for (Card card : cards) {
             uint64_t num_wins{0U};
             for (uint32_t picked_number : card.picked_numbers) {
-                for (uint32_t winning_number : card.winning_numbers) {
-                    if (picked_number == winning_number) {
-                        num_wins += 1U;
-                    }
+                if (card.winning_numbers[picked_number] == 1U) {
+                    num_wins += 1U;
                 }
             }
 

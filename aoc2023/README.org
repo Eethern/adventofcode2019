@@ -6,3 +6,4 @@ I am limiting this to c++14 because it's what my work uses.
   end.
 - DAY 2 :: Basic parsing with string view, nothing complex.
 - DAY 3 :: Most of the difficulty was parsing, but SV made it easier
+- DAY 4 :: Just loops pretty much :)
