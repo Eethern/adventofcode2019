@@ -140,12 +140,14 @@ public:
         return result;
     }
 
-    uint64_t chop_u64() {
-        uint64_t result{0U};
+
+    template <typename T>
+    T chop_number() {
+        T result{0};
         while (size_ > 0 && isdigit(*data_)) {
-            result = result * 10 + static_cast<uint64_t>(*data_ - '0');
-            size_ -= 1U;
-            data_ += 1U;
+            result = result * 10 + static_cast<T>(*data_ - '0');
+            size_ -= static_cast<T>(1);
+            data_ += static_cast<T>(1);
         }
         return result;
     }
