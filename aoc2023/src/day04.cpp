@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <bitset>
 
 #include <cmath>
 #include <string>
@@ -10,7 +11,7 @@ constexpr size_t MAX_NUMBER{100U};
 
 struct Card {
     uint32_t id;
-    uint8_t winning_numbers[MAX_NUMBER];
+    std::bitset<MAX_NUMBER> winning_mask;
     std::vector<uint32_t> picked_numbers;
 };
 
@@ -25,7 +26,8 @@ std::vector<uint32_t> parse_numbers(StringView sv) {
 
 void parse_winning_numbers(StringView sv, Card& card) {
     while (sv.size() > 0U) {
-        card.winning_numbers[sv.chop_number<size_t>()] = 1U;
+        size_t winning_number{sv.chop_number<size_t>()};
+        card.winning_mask.set(winning_number, true);
         sv = sv.trim_left();
     }
 }
@@ -44,12 +46,9 @@ Card parse_card(std::string const& line) {
 
     StringView winning_sv{line_sv.chop_by_sv({" | "})};
     parse_winning_numbers(winning_sv, card);
-    std::vector<uint32_t> picked_numbers{parse_numbers(line_sv)};
-
-    card.picked_numbers = picked_numbers;
+    card.picked_numbers = parse_numbers(line_sv);
 
     return card;
-
 }
 
 std::vector<Card> parse_cards(std::vector<std::string> const& lines) {
@@ -75,7 +74,7 @@ public:
         for (Card card : cards) {
             uint32_t num_matches{0U};
             for (uint32_t picked_number : card.picked_numbers) {
-                if (card.winning_numbers[picked_number] == 1U) {
+                if (card.winning_mask[picked_number]) {
                     num_matches += 1U;
                 }
             }
@@ -96,7 +95,7 @@ public:
         for (Card card : cards) {
             uint64_t num_wins{0U};
             for (uint32_t picked_number : card.picked_numbers) {
-                if (card.winning_numbers[picked_number] == 1U) {
+                if (card.winning_mask[picked_number]) {
                     num_wins += 1U;
                 }
             }
