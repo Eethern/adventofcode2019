@@ -100,6 +100,17 @@ public:
         return BasicStringView(data_ + i, size_ - i);
     }
 
+    void trim_left_mut() {
+        size_t i{0U};
+        while (i < size_ && std::isspace(data_[i])) {
+            i += 1;
+        }
+
+        data_ += i;
+        size_ -= i;
+    }
+
+
     BasicStringView chop_by_delim(CharT delim) {
         size_t i{0U};
         while (i < size_ && data_[i] != delim) {

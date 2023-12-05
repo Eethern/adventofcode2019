@@ -2,7 +2,32 @@
 #include <fstream>
 #include <chrono>
 
-bool Problem::read_file(std::string const& file_name, std::vector<std::string>& lines)
+bool Problem::read_file_raw(std::string const& file_name, std::string& file_content) const
+{
+    std::ifstream file(file_name);
+
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open the file " << file_name << std::endl;
+        return false;
+    }
+
+    // Seek to the end of the file to determine its size
+    file.seekg(0, std::ios::end);
+    std::streampos file_size = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    // Resize the string to fit the entire file content
+    file_content.resize(static_cast<std::size_t>(file_size));
+
+    // Read the entire file into the string
+    file.read(&file_content[0], file_size);
+
+    file.close();
+
+    return true;
+}
+
+bool Problem::read_file(std::string const& file_name, std::vector<std::string>& lines) const
 {
     std::ifstream file(file_name);
 

@@ -21,7 +21,8 @@ public:
 
     void run();
 
-    bool read_file(std::string const& file_name, std::vector<std::string>& lines);
+    bool read_file(std::string const& file_name, std::vector<std::string>& lines) const;
+    bool read_file_raw(std::string const& file_name, std::string& file_content) const;
 
 protected:
     std::string input_;
