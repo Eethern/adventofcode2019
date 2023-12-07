@@ -9,3 +9,4 @@ I am limiting this to c++14 because it's what my work uses.
 - DAY 4 :: Just loops pretty much :)
 - DAY 5 :: Bruteforced it, will revisit in the future
 - DAY 6 :: Pretty simple maths
+- DAY 7 :: Some small vector sorting and frequency counting
