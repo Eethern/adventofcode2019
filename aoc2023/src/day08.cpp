@@ -92,6 +92,7 @@ Map parse_map(StringView& raw_sv) {
 
 struct LoopCounter {
     uint32_t start_node_id;
+    Dir dir;
     uint32_t start_step;
     uint32_t end_step;
     bool finished;
@@ -178,7 +179,7 @@ public:
             }
         }
 
-        uint64_t num_steps{0U};
+        uint32_t num_steps{0U};
         bool all_ghosts_in_loop{false};
         while (!all_ghosts_in_loop) {
             Dir d{map.directions[num_steps % map.directions.size()]};
@@ -196,7 +197,7 @@ public:
                 if (current.ending_char == 'Z') {
                     bool seen_before{false};
                     for (LoopCounter& lc : ghost.z_stack) {
-                        if (lc.start_node_id == current.id) {
+                        if (lc.start_node_id == current.id && lc.dir == d) {
                             seen_before = true;
                             lc.finished = true;
                             lc.end_step = num_steps;
@@ -207,7 +208,7 @@ public:
 
                     if (!seen_before) {
                         ghost.z_stack.push_back(
-                            {current.id, num_steps, NULL, false});
+                            {current.id, d, num_steps, 0U, false});
                     }
                 }
 
@@ -232,12 +233,13 @@ public:
         for (Ghost const& ghost : ghosts) {
             for (LoopCounter const& lc : ghost.z_stack) {
                 uint32_t loop_size{lc.end_step - lc.start_step};
-                largest_loop_size = std::max<uint64_t>(largest_loop_size, loop_size);
+                largest_loop_size =
+                    std::max<uint64_t>(largest_loop_size, loop_size);
             }
         }
 
         uint64_t step;
-        for (step=largest_loop_size; true; step+=largest_loop_size) {
+        for (step = largest_loop_size; true; step += largest_loop_size) {
             bool are_same{true};
             for (Ghost const& ghost : ghosts) {
                 for (LoopCounter const& lc : ghost.z_stack) {
@@ -245,9 +247,9 @@ public:
                     are_same &= step % loop_size == 0U;
                 }
             }
-            if (are_same) break;
+            if (are_same)
+                break;
         }
-
 
         return {true, step};
     }
