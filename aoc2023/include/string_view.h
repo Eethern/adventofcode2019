@@ -155,12 +155,18 @@ public:
     template <typename T>
     T chop_number() {
         T result{0};
+        bool is_signed{false};
+        if (*data_ == '-') {
+            size_--;
+            data_++;
+            is_signed = true;
+        }
         while (size_ > 0 && isdigit(*data_)) {
             result = result * 10 + static_cast<T>(*data_ - '0');
             size_ -= static_cast<T>(1);
             data_ += static_cast<T>(1);
         }
-        return result;
+        return is_signed ? result * -1 : result;
     }
 
     BasicStringView chop_while(std::function<bool(char x)> predicate) {
