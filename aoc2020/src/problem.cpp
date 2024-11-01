@@ -1,13 +1,14 @@
 #include "problem.h"
-#include <fstream>
 #include <chrono>
+#include <fstream>
 
-bool Problem::read_file(std::string const& file_name, std::vector<std::string>& lines)
-{
+bool Problem::read_file(std::string const& file_name,
+                        std::vector<std::string>& lines) {
     std::ifstream file(file_name);
 
     if (!file.is_open()) {
-        std::cerr << "Error: Could not open the file " << file_name << std::endl;
+        std::cerr << "Error: Could not open the file " << file_name
+                  << std::endl;
         return false;
     }
 
@@ -21,8 +22,7 @@ bool Problem::read_file(std::string const& file_name, std::vector<std::string>& 
     return true;
 }
 
-void Problem::run()
-{
+void Problem::run() {
     using namespace std::chrono;
     // TODO: simplify this
     high_resolution_clock::time_point part1_t1 = high_resolution_clock::now();

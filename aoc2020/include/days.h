@@ -1,12 +1,12 @@
 #include "problem.h"
 
-#define DEFINE_DAY_CLASS(day) \
-class day : public Problem { \
-public: \
-    day(const std::string& input) : Problem(input) {} \
-    std::pair<bool, std::uint64_t> part1() override; \
-    std::pair<bool, std::uint64_t> part2() override; \
-};
+#define DEFINE_DAY_CLASS(day)                             \
+    class day : public Problem {                          \
+       public:                                            \
+        day(const std::string& input) : Problem(input) {} \
+        std::pair<bool, std::uint64_t> part1() override;  \
+        std::pair<bool, std::uint64_t> part2() override;  \
+    };
 
 DEFINE_DAY_CLASS(Day01)
 DEFINE_DAY_CLASS(Day02)

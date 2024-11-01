@@ -1,25 +1,20 @@
+#include <gtest/gtest.h>
+#include <string.h>
+#include <string>
 #include "problem.h"
 #include "string_view.h"
-#include <string.h>
-#include <gtest/gtest.h>
-#include <string>
 
-typedef struct
-{
+typedef struct {
     char letter;
     size_t min;
     size_t max;
     std::string password;
 } Password;
 
-class Day02 : public Problem
-{
-public:
-    Day02(const std::string& input) : Problem(input)
-    {
-    }
-    std::pair<bool, std::uint64_t> part1() override
-    {
+class Day02 : public Problem {
+   public:
+    Day02(const std::string& input) : Problem(input) {}
+    std::pair<bool, std::uint64_t> part1() override {
         std::vector<Password> passwords{parse_input()};
         size_t valid_passwords{0U};
         for (Password const& pass : passwords) {
@@ -37,8 +32,7 @@ public:
         return {true, valid_passwords};
     }
 
-    std::pair<bool, std::uint64_t> part2() override
-    {
+    std::pair<bool, std::uint64_t> part2() override {
         std::vector<Password> passwords{parse_input()};
         size_t valid_passwords{0U};
         for (Password const& pass : passwords) {
@@ -55,9 +49,8 @@ public:
         return {true, valid_passwords};
     }
 
-private:
-    Password parse_entry(std::string& line)
-    {
+   private:
+    Password parse_entry(std::string& line) {
         StringView sv{line.c_str()};
 
         sv = sv.trim_left();
@@ -69,8 +62,7 @@ private:
 
         return {letter, min, max, password};
     }
-    std::vector<Password> parse_input()
-    {
+    std::vector<Password> parse_input() {
         std::vector<std::string> lines;
         this->read_file(input_, lines);
 
@@ -82,20 +74,17 @@ private:
     }
 };
 
-class Day02Test : public ::testing::Test
-{
-protected:
+class Day02Test : public ::testing::Test {
+   protected:
     Day02 problem_{"examples/02.txt"};
 };
 
-TEST_F(Day02Test, part1)
-{
+TEST_F(Day02Test, part1) {
     std::pair<bool, std::uint64_t> result{problem_.part1()};
     (void)result;
 }
 
-TEST_F(Day02Test, part2)
-{
+TEST_F(Day02Test, part2) {
     std::pair<bool, std::uint64_t> result{problem_.part2()};
     (void)result;
 }

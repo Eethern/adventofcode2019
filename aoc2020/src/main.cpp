@@ -1,12 +1,11 @@
+#include <gtest/gtest.h>
 #include <cstdint>
 #include <memory>
-#include "problem.h"
 #include "days.h"
-#include <gtest/gtest.h>
+#include "problem.h"
 
-int main()
-{
-    std::vector<Problem *> days{};
+int main() {
+    std::vector<Problem*> days{};
     days.push_back(new Day01("inputs/01.txt"));
     days.push_back(new Day02("inputs/02.txt"));
     days.push_back(new Day03("inputs/03.txt"));
@@ -34,7 +33,7 @@ int main()
     // days.push_back(new Day25("inputs/25.txt"));
 
     size_t day = 1;
-    for (Problem *&d : days) {
+    for (Problem*& d : days) {
         std::cout << "Day " << day << "\n";
         d->run();
         day++;
@@ -43,8 +42,7 @@ int main()
     return 0;
 }
 
-int main_test(int argc, char **argv)
-{
+int main_test(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

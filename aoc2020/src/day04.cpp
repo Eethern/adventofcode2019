@@ -1,18 +1,14 @@
-#include "problem.h"
-#include "string_view.h"
 #include <cctype>
 #include <fstream>
 #include <string>
+#include "problem.h"
+#include "string_view.h"
 
 #include <gtest/gtest.h>
-class Day04 : public Problem
-{
-public:
-    Day04(const std::string& input) : Problem(input)
-    {
-    }
-    std::pair<bool, std::uint64_t> part1() override
-    {
+class Day04 : public Problem {
+   public:
+    Day04(const std::string& input) : Problem(input) {}
+    std::pair<bool, std::uint64_t> part1() override {
         std::pair<bool, std::string> result{read_input(input_)};
         if (!result.first) {
             return {false, NULL};
@@ -46,8 +42,7 @@ public:
         return {true, static_cast<std::uint64_t>(num_valid)};
     }
 
-    std::pair<bool, std::uint64_t> part2() override
-    {
+    std::pair<bool, std::uint64_t> part2() override {
         std::pair<bool, std::string> result{read_input(input_)};
         if (!result.first) {
             return {false, NULL};
@@ -86,10 +81,9 @@ public:
         return {true, static_cast<std::uint64_t>(num_valid)};
     }
 
-private:
+   private:
     bool validate_number(std::string const& value, std::int32_t min,
-                         std::int32_t max, std::size_t len) const
-    {
+                         std::int32_t max, std::size_t len) const {
         if (value.size() != len) {
             return false;
         }
@@ -105,8 +99,7 @@ private:
 
         return true;
     }
-    bool valid_field(StringView const& field, StringView const& value) const
-    {
+    bool valid_field(StringView const& field, StringView const& value) const {
         std::string const f{std::string(field.begin(), field.begin() + 3)};
         std::string const v{value.to_string()};
 
@@ -166,9 +159,8 @@ private:
         return false;
     }
 
-private:
-    std::pair<bool, std::string> read_input(std::string const& file_name)
-    {
+   private:
+    std::pair<bool, std::string> read_input(std::string const& file_name) {
         std::ifstream file(file_name);
         if (!file.is_open()) {
             std::cerr << "Error: Could not open the file " << file_name
@@ -189,20 +181,17 @@ private:
     }
 };
 
-class Day04Test : public ::testing::Test
-{
-protected:
+class Day04Test : public ::testing::Test {
+   protected:
     Day04 problem_{"examples/04.txt"};
 };
 
-TEST_F(Day04Test, part1)
-{
+TEST_F(Day04Test, part1) {
     std::pair<bool, std::uint64_t> result{problem_.part1()};
     (void)result;
 }
 
-TEST_F(Day04Test, part2)
-{
+TEST_F(Day04Test, part2) {
     std::pair<bool, std::uint64_t> result{problem_.part2()};
     (void)result;
 }

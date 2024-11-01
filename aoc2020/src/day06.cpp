@@ -1,14 +1,10 @@
-#include "problem.h"
 #include <gtest/gtest.h>
 #include <cstdint>
-class Day06 : public Problem
-{
-public:
-    Day06(const std::string& input) : Problem(input)
-    {
-    }
-    std::pair<bool, std::uint64_t> part1() override
-    {
+#include "problem.h"
+class Day06 : public Problem {
+   public:
+    Day06(const std::string& input) : Problem(input) {}
+    std::pair<bool, std::uint64_t> part1() override {
         std::vector<std::string> lines;
         read_file(input_, lines);
 
@@ -34,8 +30,7 @@ public:
         return {true, answer};
     }
 
-    std::pair<bool, std::uint64_t> part2() override
-    {
+    std::pair<bool, std::uint64_t> part2() override {
         std::vector<std::string> lines;
         read_file(input_, lines);
 
@@ -61,10 +56,9 @@ public:
         return {true, final_answer};
     }
 
-private:
+   private:
     std::size_t compute_group_answer(
-        std::vector<std::uint32_t> const& person_masks)
-    {
+        std::vector<std::uint32_t> const& person_masks) {
         std::uint32_t group_mask = UINT32_MAX;
         for (std::uint32_t pmask : person_masks) {
             group_mask &= pmask;
@@ -80,22 +74,16 @@ private:
 
         return num_answers;
     }
-    std::size_t char_to_index(char c) const
-    {
+    std::size_t char_to_index(char c) const {
         return static_cast<std::size_t>(c) - 97;
     }
 };
 
-class Day06Test : public ::testing::Test
-{
-protected:
+class Day06Test : public ::testing::Test {
+   protected:
     Day06 problem_{"examples/06.txt"};
 };
 
-TEST_F(Day06Test, part1)
-{
-}
+TEST_F(Day06Test, part1) {}
 
-TEST_F(Day06Test, part2)
-{
-}
+TEST_F(Day06Test, part2) {}
