@@ -14,7 +14,7 @@ $(TARGET): $(SRC)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SRC) -I $(INCLUDE) $(LIBS)
 
 run: $(TARGET)
-	$(TARGET)
+	@DAY=$(DAY) $(TARGET)
 
 .PHONY: clean
 clean:
