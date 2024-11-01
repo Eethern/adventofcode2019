@@ -44,9 +44,9 @@ public:
         for (Password const& pass : passwords) {
             size_t count{0U};
 
-            if (pass.letter == pass.password.at(pass.min-1))
+            if (pass.letter == pass.password.at(pass.min - 1))
                 count++;
-            if (pass.letter == pass.password.at(pass.max-1))
+            if (pass.letter == pass.password.at(pass.max - 1))
                 count++;
 
             if (count == 1)

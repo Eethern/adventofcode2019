@@ -46,6 +46,7 @@ public:
         for (std::string line : lines) {
             if (line.size() == 0) {
                 final_answer += compute_group_answer(person_masks);
+
                 person_idx = 0U;
                 person_masks.clear();
             } else {
@@ -84,3 +85,17 @@ private:
         return static_cast<std::size_t>(c) - 97;
     }
 };
+
+class Day06Test : public ::testing::Test
+{
+protected:
+    Day06 problem_{"examples/06.txt"};
+};
+
+TEST_F(Day06Test, part1)
+{
+}
+
+TEST_F(Day06Test, part2)
+{
+}
