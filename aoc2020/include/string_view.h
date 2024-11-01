@@ -139,6 +139,9 @@ class BasicStringView {
             size_--;
             data_++;
             is_signed = true;
+        } else if (*data_ == '+') {
+            size_--;
+            data_++;
         }
         while (size_ > 0 && isdigit(*data_)) {
             result = result * 10 + static_cast<T>(*data_ - '0');
