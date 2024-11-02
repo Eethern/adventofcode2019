@@ -19,7 +19,7 @@ class Day06 : public Problem {
                 continue;
             }
             for (char c : line) {
-                size_t cmask = (1 << char_to_index(c));
+                std::uint32_t cmask = (1U << char_to_index(c));
                 if ((charmask & cmask) == 0) {
                     num_questions += 1;
                     charmask |= cmask;

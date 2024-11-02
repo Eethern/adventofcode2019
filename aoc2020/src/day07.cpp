@@ -125,7 +125,6 @@ class Day07 : public Problem {
     std::uint64_t count_bags(BagGraph const& graph,
                              std::string const& start_name) {
         std::deque<Edge> to_visit = {{start_name, 1}};
-        std::set<std::string> visited = {};
         std::uint64_t num_bags = 0U;
         while (!to_visit.empty()) {
             Edge const next = to_visit.at(0);

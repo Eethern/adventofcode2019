@@ -8,7 +8,7 @@
 #include "problem.h"
 
 typedef std::map<std::uint32_t, std::vector<std::uint32_t>> DAG;
-typedef std::map<std::uint32_t, std::uint32_t> Memory;
+typedef std::map<std::uint32_t, std::uint64_t> Memory;
 
 typedef struct {
     std::uint32_t dest;
@@ -21,7 +21,7 @@ DAG build_dag(std::vector<std::uint32_t> const& numbers) {
     for (std::uint32_t i = 0U; i < numbers.size(); ++i) {
         std::uint32_t n = numbers.at(i);
         std::vector<uint32_t> neighbors = {};
-        std::uint32_t j = i+1;
+        std::uint32_t j = i + 1;
         while (j < numbers.size() && numbers.at(j) <= n + 3) {
             neighbors.push_back(numbers.at(j));
             j++;
@@ -42,25 +42,22 @@ void print_dag(DAG const& dag) {
     }
 }
 
-std::uint64_t count_paths_dfs(DAG const& dag, std::uint32_t target) {
-    std::uint64_t num_paths = 0U;
-
-    std::deque<_Edge> to_visit = {{0, 1}};
-    while (!to_visit.empty()) {
-        _Edge next = to_visit.at(0);
-        to_visit.pop_front();
-
-        if (next.dest == target) {
-            num_paths += next.weight;
-        }
-
-        for (std::uint32_t e : dag.at(next.dest)) {
-            to_visit.push_front({e, next.weight});
-        }
+std::uint64_t count_paths_rec(DAG const& dag, std::uint32_t start,
+                              Memory& memory) {
+    if (memory.count(start)) {
+        return memory.at(start);
     }
-    return num_paths;
-}
 
+    if (dag.at(start).size()) {
+        std::uint64_t sum_paths = 0U;
+        for (uint32_t t : dag.at(start)) {
+            sum_paths += count_paths_rec(dag, t, memory);
+        }
+        memory.insert({start, sum_paths});
+        return sum_paths;
+    }
+    return 1;
+}
 
 class Day10 : public Problem {
    public:
@@ -74,10 +71,12 @@ class Day10 : public Problem {
         std::uint32_t num_one_diffs = 0U;
         std::uint32_t num_three_diffs = 0U;
         for (std::uint32_t i = 0U; i < voltages.size() - 1; ++i) {
-            std::uint32_t dv = voltages.at(i+1) - voltages.at(i);
+            std::uint32_t dv = voltages.at(i + 1) - voltages.at(i);
             // assert(dv >= 0U && dv<=3U);
-            if (dv == 1) num_one_diffs += 1;
-            if (dv == 3) num_three_diffs += 1;
+            if (dv == 1)
+                num_one_diffs += 1;
+            if (dv == 3)
+                num_three_diffs += 1;
         }
 
         return {true, num_one_diffs * num_three_diffs};
@@ -90,8 +89,8 @@ class Day10 : public Problem {
         voltages.push_back(voltages.at(voltages.size() - 1) + 3U);
 
         DAG dag = build_dag(voltages);
-        print_dag(dag);
-        std::uint64_t num_paths = count_paths_dfs(dag, voltages.at(voltages.size() - 1));
+        Memory memory = {};
+        std::uint64_t num_paths = count_paths_rec(dag, voltages.at(0), memory);
         return {true, num_paths};
     }
 
