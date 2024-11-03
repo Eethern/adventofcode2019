@@ -53,14 +53,19 @@ Vec dir_from_heading(std::int32_t heading) {
     return out;
 }
 
-Vec rotate_vector(Vec p, std::int32_t degrees) {
+Vec rotate_vector_90deg(Vec p, std::int32_t degrees) {
+    std::int32_t d = degrees % 360;
     Vec out = {};
-    float rad = static_cast<float>(degrees) * static_cast<float>(M_PI) / 180.0f;  // Convert degrees to radians
-    float crad = cosf(rad);
-    float srad = sinf(rad);
-
-    out.x = static_cast<std::int32_t>(std::round(static_cast<float>(p.x) * crad - static_cast<float>(p.y) * srad));
-    out.y = static_cast<std::int32_t>(std::round(static_cast<float>(p.x) * srad + static_cast<float>(p.y) * crad));
+    if (d == 90) {
+        out.x = -p.y;
+        out.y = p.x;
+    } else if (d == -90) {
+        out.x = p.y;
+        out.y = -p.x;
+    } else if (abs(d) == 180) {
+        out.x = -p.x;
+        out.y = -p.y;
+    }
 
     return out;
 }
@@ -119,10 +124,10 @@ class Day12 : public Problem {
                     ship.waypoint.y += dir.y * command.value;
                     break;
                 case Left:
-                    ship.waypoint = rotate_vector(ship.waypoint, command.value);
+                    ship.waypoint = rotate_vector_90deg(ship.waypoint, command.value);
                     break;
                 case Right:
-                    ship.waypoint = rotate_vector(ship.waypoint, -command.value);
+                    ship.waypoint = rotate_vector_90deg(ship.waypoint, -command.value);
                     break;
                 case Forward:
                     ship.position.x += command.value * ship.waypoint.x;
