@@ -17,6 +17,8 @@ class Problem {
 
     void run();
 
+    std::string read_file_raw(std::string const& file_name) const;
+
     bool read_file(std::string const& file_name,
                    std::vector<std::string>& lines);
 
