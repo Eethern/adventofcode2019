@@ -37,7 +37,7 @@ int main() {
     days.push_back(new Day11("inputs/11.txt"));
     days.push_back(new Day12("inputs/12.txt"));
     days.push_back(new Day13("inputs/13.txt"));
-    // days.push_back(new Day14("inputs/14.txt"));
+    days.push_back(new Day14("inputs/14.txt"));
     // days.push_back(new Day15("inputs/15.txt"));
     // days.push_back(new Day16("inputs/16.txt"));
     // days.push_back(new Day17("inputs/17.txt"));
