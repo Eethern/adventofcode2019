@@ -70,6 +70,16 @@ fn solve_part2(sample: []const u8) !usize {
 }
 
 pub fn main() !void {
-    print("Part 1: {}\n", .{try solve_part1(input)});
-    print("Part 2: {}\n", .{try solve_part2(input)});
+    const stdout_file = std.io.getStdOut().writer();
+    var bw = std.io.bufferedWriter(stdout_file);
+    const stdout = bw.writer();
+    try stdout.print("Part 1: {}\n", .{try solve_part1(input)});
+    try stdout.print("Part 2: {}\n", .{try solve_part2(input)});
+    try bw.flush();
+}
+
+test "example" {
+    const example = @embedFile("example.txt");
+    try std.testing.expect(try solve_part1(example) == 2);
+    try std.testing.expect(try solve_part2(example) == 4);
 }
