@@ -5,10 +5,7 @@ const testing = std.testing;
 
 const Turn = enum { CLOCKWISE, COUNTER_CLOCKWISE };
 
-const Vec2 = struct {
-    x: i32,
-    y: i32,
-};
+const Vec2 = @Vector(2, i32);
 
 const Grid = struct {
     width: usize,
@@ -20,7 +17,7 @@ const Grid = struct {
         var data = std.ArrayList(u8).init(allocator);
         var row: usize = 0;
         var width: usize = 0;
-        var robot_pos = Vec2{ .x = 0, .y = 0 };
+        var robot_pos: Vec2 = .{ 0, 0 };
 
         var lines = std.mem.split(u8, bytes, "\n");
         while (lines.next()) |line| {
@@ -33,8 +30,7 @@ const Grid = struct {
                 width = @max(col, width);
 
                 if (c == '^') {
-                    robot_pos.x = @intCast(col);
-                    robot_pos.y = @intCast(row);
+                    robot_pos = .{ @intCast(col), @intCast(row) };
                 }
             }
             row += 1;
@@ -46,31 +42,31 @@ const Grid = struct {
     pub fn init_empty(allocator: std.mem.Allocator, width: usize, height: usize) !Grid {
         var data = try std.ArrayList(u8).initCapacity(allocator, width * height);
         data.appendNTimesAssumeCapacity(0, width * height);
-        return Grid{ .width = width, .height = height, .data = data, .robot_spawn = Vec2{ .x = 0, .y = 0 } };
+        return Grid{ .width = width, .height = height, .data = data, .robot_spawn = .{ 0, 0 } };
     }
 
     pub fn deinit(self: *Grid) void {
         self.data.deinit();
     }
 
-    pub fn at(self: *const Grid, row: i32, col: i32) ?u8 {
-        if (self.in_bounds(row, col)) {
+    pub fn at(self: *const Grid, pos: Vec2) ?u8 {
+        if (self.in_bounds(pos)) {
             const width: i32 = @intCast(self.width);
-            const idx: usize = @intCast(row * width + col);
+            const idx: usize = @intCast(pos[1] * width + pos[0]);
             return self.data.items[idx];
         } else {
             return null;
         }
     }
 
-    pub fn set(self: *const Grid, row: i32, col: i32, value: u8) void {
+    pub fn set(self: *const Grid, pos: Vec2, value: u8) void {
         const width: i32 = @intCast(self.width);
-        const idx: usize = @intCast(row * width + col);
+        const idx: usize = @intCast(pos[1] * width + pos[0]);
         self.data.items[idx] = value;
     }
 
-    pub fn in_bounds(self: *const Grid, row: i32, col: i32) bool {
-        return row >= 0 and row < self.height and col >= 0 and col < self.width;
+    pub fn in_bounds(self: *const Grid, pos: Vec2) bool {
+        return pos[1] >= 0 and pos[1] < self.height and pos[0] >= 0 and pos[0] < self.width;
     }
 };
 
@@ -79,11 +75,10 @@ const Robot = struct {
     orient: Vec2,
 
     pub fn patrol(self: *Robot, grid: *Grid, visited_grid: *Grid) void {
-        self.pos.x = grid.robot_spawn.x;
-        self.pos.y = grid.robot_spawn.y;
+        self.pos = grid.robot_spawn;
 
-        while (grid.in_bounds(self.pos.y, self.pos.x)) {
-            visited_grid.set(self.pos.y, self.pos.x, visited_grid.at(self.pos.y, self.pos.x).? + 1);
+        while (grid.in_bounds(self.pos)) {
+            visited_grid.set(self.pos, visited_grid.at(self.pos).? + 1);
             self.forward();
             if (self.peek(grid) == '#') {
                 self.turn(Turn.COUNTER_CLOCKWISE);
@@ -92,30 +87,30 @@ const Robot = struct {
     }
 
     pub fn peek(self: *Robot, grid: *Grid) ?u8 {
-        return grid.at(self.pos.y + self.orient.y, self.pos.x + self.orient.x);
+        return grid.at(self.pos + self.orient);
     }
 
     pub fn forward(self: *Robot) void {
-        self.pos.x += self.orient.x;
-        self.pos.y += self.orient.y;
+        self.pos += self.orient;
     }
 
     pub fn turn(self: *Robot, t: Turn) void {
+        const orient = self.orient;
         self.orient = switch (t) {
-            .CLOCKWISE => Vec2{ .x = self.orient.y, .y = -self.orient.x },
-            .COUNTER_CLOCKWISE => Vec2{ .x = -self.orient.y, .y = self.orient.x },
+            .CLOCKWISE => .{ orient[1], -orient[0] },
+            .COUNTER_CLOCKWISE => .{ -orient[1], orient[0] },
         };
     }
 
     pub fn hash_state(self: *const Robot) u128 {
-        assert(self.pos.x + 1 >= 0);
-        assert(self.pos.y + 1 >= 0);
-        assert(self.orient.x + 1 >= 0);
-        assert(self.orient.y + 1 >= 0);
-        var hash: u128 = @as(u128, @bitCast(@as(i128, self.pos.x + 1)));
-        hash = (hash << 32) | @as(u128, @bitCast(@as(i128, self.pos.y + 1)));
-        hash = (hash << 32) | @as(u128, @bitCast(@as(i128, self.orient.x + 1)));
-        hash = (hash << 32) | @as(u128, @bitCast(@as(i128, self.orient.y + 1)));
+        assert(self.pos[0] + 1 >= 0);
+        assert(self.pos[1] + 1 >= 0);
+        assert(self.orient[0] + 1 >= 0);
+        assert(self.orient[1] + 1 >= 0);
+        var hash: u128 = @as(u128, @bitCast(@as(i128, self.pos[0] + 1)));
+        hash = (hash << 32) | @as(u128, @bitCast(@as(i128, self.pos[1] + 1)));
+        hash = (hash << 32) | @as(u128, @bitCast(@as(i128, self.orient[0] + 1)));
+        hash = (hash << 32) | @as(u128, @bitCast(@as(i128, self.orient[1] + 1)));
         return hash;
     }
 };
@@ -142,7 +137,7 @@ const Simulator = struct {
     }
 
     pub fn detect_loop(self: *Simulator, robot: *Robot) !bool {
-        while (self.grid.in_bounds(robot.pos.y, robot.pos.x)) {
+        while (self.grid.in_bounds(robot.pos)) {
             if (robot.peek(self.grid) == '#') {
                 const hash = robot.hash_state();
                 if (self.state_map.contains(hash)) {
@@ -161,19 +156,19 @@ const Simulator = struct {
 
     pub fn count_loops(self: *Simulator) !usize {
         var num_loops: usize = 0;
-        var robot = Robot{ .pos = self.grid.robot_spawn, .orient = Vec2{ .x = 0, .y = -1 } };
-        while (self.grid.in_bounds(robot.pos.y, robot.pos.x)) {
+        var robot = Robot{ .pos = self.grid.robot_spawn, .orient = .{ 0, -1 } };
+        while (self.grid.in_bounds(robot.pos)) {
             const save_position = robot.pos;
             const save_orientation = robot.orient;
 
-            const wall = Vec2{ .x = robot.pos.x + robot.orient.x, .y = robot.pos.y + robot.orient.y };
+            const wall = robot.pos + robot.orient;
 
-            if (!self.grid.in_bounds(wall.y, wall.x)) {
+            if (!self.grid.in_bounds(wall)) {
                 robot.forward();
                 break;
             }
 
-            const before: u8 = self.grid.at(wall.y, wall.x).?;
+            const before: u8 = self.grid.at(wall).?;
             if (before == '#') {
                 robot.turn(Turn.COUNTER_CLOCKWISE);
                 continue;
@@ -184,7 +179,7 @@ const Simulator = struct {
                 continue;
             }
 
-            self.grid.set(wall.y, wall.x, '#');
+            self.grid.set(wall, '#');
             try self.visited_map.put(wall, true);
 
             if (try self.detect_loop(&robot)) {
@@ -195,7 +190,7 @@ const Simulator = struct {
             robot.pos = save_position;
             robot.orient = save_orientation;
             self.state_map.clearAndFree();
-            self.grid.set(wall.y, wall.x, before);
+            self.grid.set(wall, before);
             robot.forward();
         }
         return num_loops;
@@ -237,7 +232,7 @@ pub fn main() !void {
     var visited_grid = try Grid.init_empty(allocator, grid.width, grid.height);
     defer visited_grid.deinit();
 
-    var robot = Robot{ .pos = Vec2{ .x = 0, .y = 0 }, .orient = Vec2{ .x = 0, .y = -1 } };
+    var robot = Robot{ .pos = .{ 0, 0 }, .orient = .{ 0, -1 } };
     robot.patrol(&grid, &visited_grid);
 
     const unique_cells = count_visited_cells(&visited_grid);
@@ -265,35 +260,33 @@ test "grid" {
     var grid = try Grid.init_from_bytes(testing.allocator, EXAMPLE_GRID);
     defer grid.deinit();
 
-    try testing.expectEqual(4, grid.robot_spawn.x);
-    try testing.expectEqual(6, grid.robot_spawn.y);
+    try testing.expectEqual(grid.robot_spawn, .{ 4, 6 });
 
     try testing.expectEqual(10, grid.height);
     try testing.expectEqual(10, grid.width);
 
-    try testing.expectEqual('#', grid.at(3, 2).?);
-    try testing.expectEqual('.', grid.at(1, 1).?);
+    try testing.expectEqual('#', grid.at(.{ 2, 3 }).?);
+    try testing.expectEqual('.', grid.at(.{ 1, 1 }).?);
 }
 
 test "robot_move" {
-    var robot = Robot{ .pos = Vec2{ .x = 0, .y = 0 }, .orient = Vec2{ .x = 0, .y = 1 } };
+    var robot = Robot{ .pos = .{ 0, 0 }, .orient = .{ 0, 1 } };
     robot.forward();
-    try testing.expectEqual(robot.pos.x, 0);
-    try testing.expectEqual(robot.pos.y, 1);
+
+    try testing.expectEqual(.{ 0, 1 }, robot.pos);
 }
 
 test "robot_turn_clockwise" {
-    var robot = Robot{ .pos = Vec2{ .x = 0, .y = 0 }, .orient = Vec2{ .x = 0, .y = 1 } };
+    var robot = Robot{ .pos = .{ 0, 0 }, .orient = .{ 0, 1 } };
     robot.turn(Turn.CLOCKWISE);
-    try testing.expectEqual(1, robot.orient.x);
-    try testing.expectEqual(0, robot.orient.y);
+
+    try testing.expectEqual(.{ 1, 0 }, robot.orient);
 }
 
 test "robot_turn_counter_clockwise" {
-    var robot = Robot{ .pos = Vec2{ .x = 0, .y = 0 }, .orient = Vec2{ .x = 0, .y = 1 } };
+    var robot = Robot{ .pos = .{ 0, 0 }, .orient = .{ 0, 1 } };
     robot.turn(Turn.COUNTER_CLOCKWISE);
-    try testing.expectEqual(-1, robot.orient.x);
-    try testing.expectEqual(0, robot.orient.y);
+    try testing.expectEqual(.{ -1, 0 }, robot.orient);
 }
 
 test "robot_patrol" {
@@ -301,10 +294,9 @@ test "robot_patrol" {
     defer grid.deinit();
     var visited_grid = try Grid.init_empty(testing.allocator, grid.width, grid.height);
     defer visited_grid.deinit();
-    var robot = Robot{ .pos = Vec2{ .x = 0, .y = 0 }, .orient = Vec2{ .x = 0, .y = -1 } };
+    var robot = Robot{ .pos = .{ 0, 0 }, .orient = .{ 0, -1 } };
     robot.patrol(&grid, &visited_grid);
-    try testing.expectEqual(7, robot.pos.x);
-    try testing.expectEqual(10, robot.pos.y);
+    try testing.expectEqual(.{ 7, 10 }, robot.pos);
 
     const unique_cells = count_visited_cells(&visited_grid);
     try testing.expectEqual(41, unique_cells);
