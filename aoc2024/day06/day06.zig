@@ -24,6 +24,10 @@ const Grid = struct {
 
         var lines = std.mem.split(u8, bytes, "\n");
         while (lines.next()) |line| {
+            if (line.len == 0) {
+                break;
+            }
+
             for (0.., line) |col, c| {
                 try data.append(c);
                 width = @max(col, width);
@@ -102,6 +106,100 @@ const Robot = struct {
             .COUNTER_CLOCKWISE => Vec2{ .x = -self.orient.y, .y = self.orient.x },
         };
     }
+
+    pub fn hash_state(self: *const Robot) u128 {
+        assert(self.pos.x + 1 >= 0);
+        assert(self.pos.y + 1 >= 0);
+        assert(self.orient.x + 1 >= 0);
+        assert(self.orient.y + 1 >= 0);
+        var hash: u128 = @as(u128, @bitCast(@as(i128, self.pos.x + 1)));
+        hash = (hash << 32) | @as(u128, @bitCast(@as(i128, self.pos.y + 1)));
+        hash = (hash << 32) | @as(u128, @bitCast(@as(i128, self.orient.x + 1)));
+        hash = (hash << 32) | @as(u128, @bitCast(@as(i128, self.orient.y + 1)));
+        return hash;
+    }
+};
+
+const Simulator = struct {
+    state_map: std.AutoHashMap(u128, bool),
+    grid: *Grid,
+    visited_map: std.AutoHashMap(Vec2, bool),
+
+    pub fn init(allocator: std.mem.Allocator, grid: *Grid) !Simulator {
+        const state_map = std.AutoHashMap(u128, bool).init(allocator);
+        const visited_map = std.AutoHashMap(Vec2, bool).init(allocator);
+        return Simulator{ .state_map = state_map, .grid = grid, .visited_map = visited_map };
+    }
+
+    pub fn deinit(self: *Simulator) void {
+        self.state_map.deinit();
+        self.visited_map.deinit();
+    }
+
+    pub fn record_state(self: *Simulator, robot: *Robot) void {
+        const hash = robot.hash_state();
+        self.state_map.put(hash, true);
+    }
+
+    pub fn detect_loop(self: *Simulator, robot: *Robot) !bool {
+        while (self.grid.in_bounds(robot.pos.y, robot.pos.x)) {
+            if (robot.peek(self.grid) == '#') {
+                const hash = robot.hash_state();
+                if (self.state_map.contains(hash)) {
+                    return true;
+                }
+                try self.state_map.put(hash, true);
+
+                robot.turn(Turn.COUNTER_CLOCKWISE);
+            } else {
+                robot.forward();
+            }
+        }
+
+        return false;
+    }
+
+    pub fn count_loops(self: *Simulator) !usize {
+        var num_loops: usize = 0;
+        var robot = Robot{ .pos = self.grid.robot_spawn, .orient = Vec2{ .x = 0, .y = -1 } };
+        while (self.grid.in_bounds(robot.pos.y, robot.pos.x)) {
+            const save_position = robot.pos;
+            const save_orientation = robot.orient;
+
+            const wall = Vec2{ .x = robot.pos.x + robot.orient.x, .y = robot.pos.y + robot.orient.y };
+
+            if (!self.grid.in_bounds(wall.y, wall.x)) {
+                robot.forward();
+                break;
+            }
+
+            const before: u8 = self.grid.at(wall.y, wall.x).?;
+            if (before == '#') {
+                robot.turn(Turn.COUNTER_CLOCKWISE);
+                continue;
+            }
+
+            if (self.visited_map.contains(wall)) {
+                robot.forward();
+                continue;
+            }
+
+            self.grid.set(wall.y, wall.x, '#');
+            try self.visited_map.put(wall, true);
+
+            if (try self.detect_loop(&robot)) {
+                num_loops += 1;
+            }
+
+            // restore
+            robot.pos = save_position;
+            robot.orient = save_orientation;
+            self.state_map.clearAndFree();
+            self.grid.set(wall.y, wall.x, before);
+            robot.forward();
+        }
+        return num_loops;
+    }
 };
 
 fn read_file(allocator: std.mem.Allocator, filename: []const u8) ![]u8 {
@@ -143,24 +241,28 @@ pub fn main() !void {
     robot.patrol(&grid, &visited_grid);
 
     const unique_cells = count_visited_cells(&visited_grid);
+    var simulator = try Simulator.init(allocator, &grid);
+    defer simulator.deinit();
+
     print("Part 1: {}\n", .{unique_cells});
+    print("Part 2: {}\n", .{try simulator.count_loops()});
 }
 
-test "grid" {
-    const grid_bytes =
-        \\....#.....
-        \\.........#
-        \\..........
-        \\..#.......
-        \\.......#..
-        \\..........
-        \\.#..^.....
-        \\........#.
-        \\#.........
-        \\......#...
-    ;
+const EXAMPLE_GRID =
+    \\....#.....
+    \\.........#
+    \\..........
+    \\..#.......
+    \\.......#..
+    \\..........
+    \\.#..^.....
+    \\........#.
+    \\#.........
+    \\......#...
+;
 
-    var grid = try Grid.init_from_bytes(testing.allocator, grid_bytes);
+test "grid" {
+    var grid = try Grid.init_from_bytes(testing.allocator, EXAMPLE_GRID);
     defer grid.deinit();
 
     try testing.expectEqual(4, grid.robot_spawn.x);
@@ -195,19 +297,7 @@ test "robot_turn_counter_clockwise" {
 }
 
 test "robot_patrol" {
-    const grid_bytes =
-        \\....#.....
-        \\.........#
-        \\..........
-        \\..#.......
-        \\.......#..
-        \\..........
-        \\.#..^.....
-        \\........#.
-        \\#.........
-        \\......#...
-    ;
-    var grid = try Grid.init_from_bytes(testing.allocator, grid_bytes);
+    var grid = try Grid.init_from_bytes(testing.allocator, EXAMPLE_GRID);
     defer grid.deinit();
     var visited_grid = try Grid.init_empty(testing.allocator, grid.width, grid.height);
     defer visited_grid.deinit();
@@ -218,4 +308,14 @@ test "robot_patrol" {
 
     const unique_cells = count_visited_cells(&visited_grid);
     try testing.expectEqual(41, unique_cells);
+}
+
+test "loop" {
+    var grid = try Grid.init_from_bytes(testing.allocator, EXAMPLE_GRID);
+    defer grid.deinit();
+
+    var simulator = try Simulator.init(testing.allocator, &grid);
+    defer simulator.deinit();
+
+    try testing.expectEqual(6, simulator.count_loops());
 }
