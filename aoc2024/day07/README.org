@@ -1,0 +1,7 @@
+#+title: Bridge Repair
+
+Recursively evaluate all combinations of operators (total $2^n$ or $3^n$ for
+part 2)
+
+We can prune the tree by discarding branches where =accumulator > target=, because
+the numbers always increase in both parts.
