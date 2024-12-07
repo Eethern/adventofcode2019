@@ -1,0 +1,6 @@
+#+title: Print Queue
+
+For part1 maintain bitmasks of required =previous= pages per =after= key. Also
+maintain a mask for encountered pages per list of updates.
+
+For part2 just sort based on the order parsed in part1.

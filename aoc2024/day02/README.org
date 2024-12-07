@@ -1,0 +1,7 @@
+#+title: Red-Nosed Reports
+
+Part1 can be solved by just numerical differentation and maintaining whether all
+are positive and all are negative.
+
+Part2 can be brute-forced by just evaluating whether it's possible to skip any
+of the numbers.

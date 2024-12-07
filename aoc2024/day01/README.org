@@ -1,0 +1,4 @@
+#+title: Historian Hysteria
+
+Simply sort the lists before and pairwise check for part1. For part2 maintain an
+array from 0 to max number and use that as counter.

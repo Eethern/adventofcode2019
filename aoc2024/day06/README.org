@@ -1,0 +1,8 @@
+#+title: Guard Gallivant
+
+For part1 simulate the guard and keep track of where it has moved using a visited grid.
+
+For part2 switch to a hashmap and hash the position + direction into a
+key. Then it's just checkpointing the guard every step, placing a wall in front
+ot if, and checking if a loop occurs with the hashmap. Finally restore from
+checkpoint and repeat until the guard has left the area.

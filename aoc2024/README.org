@@ -1,9 +1,12 @@
+#+title: Advent of Code 2024
 
+This year it's in Zig!.
 
-* Advent of Code 2024
-This year it's in Zig :).
-
-Each day can be compiled individually via
+Each day can be run individually via
 #+begin_src console
-$ zig build-exe day01.zig --name bin/day01
+$ zig run dayxx.zig
+#+end_src
+or tested
+#+begin_src console
+zig test dayxx.zig
 #+end_src

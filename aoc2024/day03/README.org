@@ -1,0 +1,8 @@
+#+title: Mull It Over
+
+Went crazy on this one. I've not used regex in zig so I build my own Lexer and
+Parser. They are pretty cool but turned out to be a bit overkill for this
+task. The parser takes the tokens provided by the lexer and evaluates sequences
+of expressions.
+
+For part2 just maintain a state whether multiplication is enabled and sum accordingly.

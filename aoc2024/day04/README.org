@@ -1,0 +1,6 @@
+#+title: Ceres Search
+
+Just a simple line-searching solution. For Part1 parameterize the linesearch by
+the length of the needle and the direction.
+
+For part2 I hard-coded the pattern possibilities (4 in total) and looked for those.
