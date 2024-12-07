@@ -24,9 +24,7 @@ fn valid_equation_rec(target: u64, numbers: []const u64, n: u64, part2: bool) bo
     }
     const next_slice = numbers[1..];
     const next = numbers[0];
-    return (part2 and valid_equation_rec(target, next_slice, concat(n, next), part2))
-        or valid_equation_rec(target, next_slice, n * next, part2)
-        or valid_equation_rec(target, next_slice, n + next, part2);
+    return (part2 and valid_equation_rec(target, next_slice, concat(n, next), part2)) or valid_equation_rec(target, next_slice, n * next, part2) or valid_equation_rec(target, next_slice, n + next, part2);
 }
 
 fn read_file(allocator: std.mem.Allocator, filename: []const u8) ![]u8 {
@@ -94,36 +92,37 @@ pub fn main() !void {
 test "valid equation" {
     const TestValidEquation = struct {
         const Self = @This();
-        outcome: bool,
-        target: u64,
-        numbers: []const u64,
-        part2: bool,
+        part_b: bool = false,
 
-        fn run(self: *const Self) !void {
-            try testing.expectEqual(self.outcome, valid_equation_rec(self.target, self.numbers, 0, self.part2));
-        }
-
-        fn init(outcome: bool, target: u64, numbers: []const u64, part2: bool) Self {
-            return Self{ .outcome = outcome, .target = target, .numbers = numbers, .part2 = part2 };
+        pub fn run(self: *const Self, line: []const u8) !bool {
+            const problem = try parse_problem(testing.allocator, line);
+            defer problem.numbers.deinit();
+            return valid_equation_rec(problem.target, problem.numbers.items, 0, self.part_b);
         }
     };
 
+    const runner_a = TestValidEquation{};
+    const runner_b = TestValidEquation{ .part_b = true };
 
-    try TestValidEquation.init(true, 190, &[_]u64{ 10, 19 }, false).run();
-    try TestValidEquation.init(true, 3267, &[_]u64{ 81, 40, 27 }, false).run();
-    try TestValidEquation.init(false, 83, &[_]u64{ 17, 5 }, false).run();
-    try TestValidEquation.init(false, 156, &[_]u64{ 15, 6 }, false).run();
-    try TestValidEquation.init(false, 7290, &[_]u64{ 6, 8, 6, 15 }, false).run();
-    try TestValidEquation.init(false, 161011, &[_]u64{ 16, 10, 13 }, false).run();
-    try TestValidEquation.init(false, 192, &[_]u64{ 17, 8, 14 }, false).run();
-    try TestValidEquation.init(false, 21037, &[_]u64{ 9, 7, 18, 13 }, false).run();
-    try TestValidEquation.init(true, 292, &[_]u64{ 11, 6, 16, 20 }, false).run();
+    // part1
+    try testing.expect(try runner_a.run("190: 10 19"));
+    try testing.expect(try runner_a.run("3267: 81 40 27"));
+    try testing.expect(!try runner_a.run("83: 17 5"));
+    try testing.expect(!try runner_a.run("156: 15 6"));
+    try testing.expect(!try runner_a.run("7290: 6 8 6 15"));
+    try testing.expect(!try runner_a.run("161011: 16 10 13"));
+    try testing.expect(!try runner_a.run("192: 17 8 14"));
+    try testing.expect(!try runner_a.run("21037: 9 7 18 13"));
+    try testing.expect(try runner_a.run("292: 11 6 16 20"));
 
-    try TestValidEquation.init(false, 573436, &[_]u64{ 65, 11, 802, 3, 6 }, false).run();
-    try TestValidEquation.init(false, 89418618, &[_]u64{ 69, 797, 2, 813, 2 }, false).run();
+    // longer inputs
+    try testing.expect(!try runner_a.run("573436: 65 11 802 3 6"));
+    try testing.expect(!try runner_a.run("89418618: 69 797 2 813 2"));
+    try testing.expect(!try runner_a.run("18492032561: 8 2 75 138 1 31 9 7 1 8 2"));
 
-    try TestValidEquation.init(true, 156, &[_]u64{ 15, 6 }, true).run();
-    try TestValidEquation.init(true, 7290, &[_]u64{ 6, 8, 6, 15 }, true).run();
-    try TestValidEquation.init(true, 192, &[_]u64{ 17, 8, 14 }, true).run();
-    try TestValidEquation.init(false, 161011, &[_]u64{ 16, 10, 13 }, true).run();
+    // part2
+    try testing.expect(try runner_b.run("156: 15 6"));
+    try testing.expect(try runner_b.run("7290: 6 8 6 15"));
+    try testing.expect(try runner_b.run("192: 17 8 14"));
+    try testing.expect(!try runner_b.run("161011: 16 10 13"));
 }
