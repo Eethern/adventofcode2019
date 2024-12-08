@@ -1,0 +1,10 @@
+# Resonant Collinearity
+
+Indexed each antenna into a HashMap(freq, ArrayList(coordinate)) so that
+querying all antennas of a frequency is easy.
+
+Given two antennas you can find all antipoles via vector algebra. For part2 just
+repeat this step until the antipole is out of bounds of the grid.
+
+Then use a HashSet(Vec2) to keep track of positions with antipoles and count the
+size of the set at the end.

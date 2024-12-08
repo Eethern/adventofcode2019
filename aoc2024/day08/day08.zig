@@ -66,7 +66,7 @@ const Problem = struct {
         self.antenna_map.deinit();
     }
 
-    pub fn vec_within_bounds(self: *const Problem, vec: Vec2) bool {
+    pub fn vec_outside_bounds(self: *const Problem, vec: Vec2) bool {
         return (vec[0] < 0 or vec[0] > self.grid_width - 1 or vec[1] < 0 or vec[1] > self.grid_height - 1);
     }
 };
@@ -96,7 +96,37 @@ pub fn populate_antinodes(antenna_a: *const Antenna, antenna_b: *const Antenna, 
     try antinode_set.put(antinode2, undefined);
 }
 
-pub fn create_antinode_set(allocator: std.mem.Allocator, problem: *const Problem) !AntinodeSet {
+pub fn populate_antinodes_part2(problem: *const Problem, antenna_a: *const Antenna, antenna_b: *const Antenna, antinode_set: *AntinodeSet) !void {
+    if (antenna_a.freq != antenna_b.freq) {
+        return error.MismatchingFrequencies;
+    }
+
+    const b_to_a = antenna_b.pos - antenna_a.pos;
+    var d: Vec2 = .{ 0, 0 };
+    while (true) {
+        const a_pos = antenna_a.pos - d;
+        const b_pos = antenna_b.pos + d;
+        const a_outside_bounds = problem.vec_outside_bounds(a_pos);
+        const b_outside_bounds = problem.vec_outside_bounds(b_pos);
+        if (!a_outside_bounds) {
+            const antinode1 = Antinode{ .pos = a_pos };
+            try antinode_set.put(antinode1, undefined);
+        }
+
+        if (!b_outside_bounds) {
+            const antinode2 = Antinode{ .pos = b_pos };
+            try antinode_set.put(antinode2, undefined);
+        }
+
+        if (a_outside_bounds and b_outside_bounds) {
+            break;
+        }
+
+        d += b_to_a;
+    }
+}
+
+pub fn create_antinode_set(allocator: std.mem.Allocator, problem: *const Problem, part2: bool) !AntinodeSet {
     var antinode_set = AntinodeSet.init(allocator);
 
     var it = problem.antenna_map.iterator();
@@ -104,7 +134,11 @@ pub fn create_antinode_set(allocator: std.mem.Allocator, problem: *const Problem
         for (0.., entry.value_ptr.items) |i, antenna_a| {
             for (0.., entry.value_ptr.items) |j, antenna_b| {
                 if (i == j) continue;
-                try populate_antinodes(&antenna_a, &antenna_b, &antinode_set);
+                if (part2) {
+                    try populate_antinodes_part2(problem, &antenna_a, &antenna_b, &antinode_set);
+                } else {
+                    try populate_antinodes(&antenna_a, &antenna_b, &antinode_set);
+                }
             }
         }
     }
@@ -116,7 +150,7 @@ pub fn compute_number_of_antinode_in_bounds(antinode_set: *const AntinodeSet, pr
     var num_antinodes: usize = 0;
     while (antinode_it.next()) |an| {
         const pos = an.key_ptr.*.pos;
-        if (problem.vec_within_bounds(pos)) {
+        if (problem.vec_outside_bounds(pos)) {
             continue;
         }
         num_antinodes += 1;
@@ -134,11 +168,16 @@ pub fn main() !void {
     var problem = try Problem.init_from_bytes(allocator, grid_bytes);
     defer problem.deinit();
 
-    var antinode_set = try create_antinode_set(allocator, &problem);
+    var antinode_set = try create_antinode_set(allocator, &problem, false);
     defer antinode_set.deinit();
 
+    var antinode_set_part2 = try create_antinode_set(allocator, &problem, true);
+    defer antinode_set_part2.deinit();
+
     const part1_answer: usize = compute_number_of_antinode_in_bounds(&antinode_set, &problem);
+    const part2_answer: usize = compute_number_of_antinode_in_bounds(&antinode_set_part2, &problem);
     print("Part1 {}\n", .{part1_answer});
+    print("Part2 {}\n", .{part2_answer});
 }
 
 const GRID_BYTES =
@@ -194,9 +233,19 @@ test "multiple_antinodes" {
     var problem = try Problem.init_from_bytes(testing.allocator, GRID_BYTES);
     defer problem.deinit();
 
-    var antinode_set = try create_antinode_set(testing.allocator, &problem);
+    var antinode_set = try create_antinode_set(testing.allocator, &problem, false);
     defer antinode_set.deinit();
 
     const num_antinodes: usize = compute_number_of_antinode_in_bounds(&antinode_set, &problem);
     try testing.expectEqual(14, num_antinodes);
+}
+
+test "part2_antinodes" {
+    var problem = try Problem.init_from_bytes(testing.allocator, GRID_BYTES);
+    defer problem.deinit();
+
+    var antinode_set = try create_antinode_set(testing.allocator, &problem, true);
+    defer antinode_set.deinit();
+
+    try testing.expectEqual(34, antinode_set.count());
 }
