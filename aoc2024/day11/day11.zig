@@ -2,10 +2,6 @@ const std = @import("std");
 const testing = std.testing;
 const print = std.debug.print;
 
-/// Rules:
-///   0 -> 1
-///   even(a, b) -> a, b
-///   else(n) -> n*2024
 fn num_digits(num: u64) usize {
     var n = num;
     var digits: u64 = 0;
@@ -83,21 +79,16 @@ fn count_stones(counts: *const Counts) usize {
     return num_stones;
 }
 
-fn tick_generations(counts: *Counts, counts_switch: *Counts, num_generations: usize) !void {
-    var counts_ptr = counts;
-    var counts_switch_ptr = counts_switch;
+fn tick_generations(counts_in: *Counts, counts_out: *Counts, num_generations: usize) !void {
+    var counts_in_ptr = counts_in;
+    var counts_out_ptr = counts_out;
     for (0..num_generations) |_| {
-        try tick_generation(counts_ptr, counts_switch_ptr);
+        try tick_generation(counts_in_ptr, counts_out_ptr);
 
-        const t_ptr = counts_ptr;
-        counts_ptr = counts_switch_ptr;
-        counts_switch_ptr = t_ptr;
-        counts_switch_ptr.clearAndFree();
-    }
-
-    if (num_generations % 2 == 0) {
-        counts_ptr = counts_switch_ptr;
-        counts_switch_ptr.clearAndFree();
+        const t_ptr = counts_in_ptr;
+        counts_in_ptr = counts_out_ptr;
+        counts_out_ptr = t_ptr;
+        counts_out_ptr.clearAndFree();
     }
 }
 
@@ -123,13 +114,15 @@ pub fn main() !void {
 
     var counts = Counts.init(allocator);
     defer counts.deinit();
-    var counts_switch = Counts.init(allocator);
-    defer counts_switch.deinit();
+    var counts_two = Counts.init(allocator);
+    defer counts_two.deinit();
 
     try populate_counts(buff, &counts);
 
-    try tick_generations(&counts, &counts_switch, 25);
-    print("Part1: {}\n", .{count_stones(&counts_switch)});
+    try tick_generations(&counts, &counts_two, 25);
+    print("Part1: {}\n", .{count_stones(&counts_two)});
+    try tick_generations(&counts_two, &counts, 75 - 25);
+    print("Part2: {}\n", .{count_stones(&counts_two)});
 }
 
 test "split number" {

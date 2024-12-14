@@ -1,0 +1,5 @@
+#+title: Plutonian Pebbles
+
+I remember the trenches of lanternfish back in 2021. Instead of maintaining a
+dynamic array, just count all the stones instead with a hashmap. This solves
+both parts in one go.
