@@ -1,0 +1,9 @@
+#+title: Hoof It
+
+Part 1 tasks us with finding out how many end nodes we can reach from each start
+node. This can easily be done with a DFS or BFS without ending condition. In
+this case I chose running a DFS from each start node.
+
+Part 2 requires finding all possible paths from a start node to any end
+node. Dynamic programming can be used if we maintain the number of paths that
+end in a specific node.
