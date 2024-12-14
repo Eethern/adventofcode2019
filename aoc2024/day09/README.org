@@ -1,0 +1,8 @@
+#+title: Disk Fragmenter
+
+Kindof like a left and right pointer algorithm. Part1 maintains the size of
+available space in each file and moves either full or partial files based on
+these sizes.
+
+Part2 simply loops over files from the right. For each file find the first
+available chunk of space starting from the left and move it there.
