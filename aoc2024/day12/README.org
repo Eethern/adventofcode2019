@@ -1,0 +1,10 @@
+#+title: Garden Groups
+
+Part1 can be solved by a running a flood fill algorithm on every cell (skip
+already flooded cells for efficiency). This gives both the area and the
+perimeter if we track it during the fill.
+
+Part2 is a simple extension were while counting the area of the region, we also
+count the number of corners. For these shapes the number of corners is the same
+as the number of sides and can be more easily computed by considering inward
+corners and outward corners separately.

@@ -93,8 +93,45 @@ const ALL_DIRS: [4]Dir = [4]Dir{
     .DOWN,
 };
 
+/// corners
+///  in
+/// AA A# #A AA
+/// A# AA AA #A
+///  ot
+/// ## #A A# ##
+/// #A ## ## A#
+const CORNER_CHECKS: [4][2]Dir = [4][2]Dir{
+    .{ .UP, .RIGHT },
+    .{ .RIGHT, .DOWN },
+    .{ .DOWN, .LEFT },
+    .{ .LEFT, .UP },
+};
+
+fn count_corners(grid: *Grid(Cell), row: i32, col: i32) usize {
+    var num_corners: usize = 0;
+    for (CORNER_CHECKS) |check| {
+        const first = check[0].to_vec();
+        const second = check[1].to_vec();
+
+        const current_cell = grid.at(row, col).?;
+        const first_cell = grid.at(row + first.row, col + first.col);
+        const second_cell = grid.at(row + second.row, col + second.col);
+        const corner_cell = grid.at(row + first.row + second.row, col + first.col + second.col);
+
+        const first_match = (first_cell != null and first_cell.?.plant == current_cell.plant);
+        const second_match = (second_cell != null and second_cell.?.plant == current_cell.plant);
+        const corner_match = (corner_cell != null and corner_cell.?.plant == current_cell.plant);
+
+        if ((!first_match and !second_match) or (first_match and second_match and !corner_match)) {
+            num_corners += 1;
+        }
+    }
+    return num_corners;
+}
+
 const FloodResult = struct {
     perimiter: usize = 0,
+    num_corners: usize = 0,
     area: usize = 0,
 };
 
@@ -117,6 +154,7 @@ fn flood_fill(allocator: std.mem.Allocator, grid: *Grid(Cell), src_row: i32, src
     while (stack.items.len > 0) {
         const next = stack.pop();
         flood_result.area += 1;
+        flood_result.num_corners += count_corners(grid, next.row, next.col);
 
         for (ALL_DIRS) |dir| {
             const dv = dir.to_vec();
@@ -140,7 +178,7 @@ fn flood_fill(allocator: std.mem.Allocator, grid: *Grid(Cell), src_row: i32, src
     return flood_result;
 }
 
-fn compute_total_price(allocator: std.mem.Allocator, grid: *Grid(Cell)) !usize {
+fn compute_total_price(allocator: std.mem.Allocator, grid: *Grid(Cell), part2: bool) !usize {
     var total_price: usize = 0;
     for (0..grid.height) |row| {
         const row_i32: i32 = @as(i32, @intCast(row));
@@ -148,7 +186,11 @@ fn compute_total_price(allocator: std.mem.Allocator, grid: *Grid(Cell)) !usize {
             const col_i32: i32 = @as(i32, @intCast(col));
             const result = try flood_fill(allocator, grid, row_i32, col_i32);
             if (result != null) {
-                total_price += result.?.area * result.?.perimiter;
+                if (!part2) {
+                    total_price += result.?.area * result.?.perimiter;
+                } else {
+                    total_price += result.?.area * result.?.num_corners;
+                }
             }
         }
     }
@@ -174,11 +216,16 @@ pub fn main() !void {
     const buff = try read_file(allocator, "input.txt");
     defer allocator.free(buff);
 
-    var grid = try Grid(Cell).init(allocator, buff);
-    defer grid.deinit();
+    var grid_a = try Grid(Cell).init(allocator, buff);
+    defer grid_a.deinit();
 
-    const part1_answer = try compute_total_price(allocator, &grid);
+    var grid_b = try Grid(Cell).init(allocator, buff);
+    defer grid_b.deinit();
+
+    const part1_answer = try compute_total_price(allocator, &grid_a, false);
     print("Part1: {}\n", .{part1_answer});
+    const part2_answer = try compute_total_price(allocator, &grid_b, true);
+    print("Part2: {}\n", .{part2_answer});
 }
 
 const EXAMPLE =
@@ -205,29 +252,34 @@ test "flood_fill" {
     const result_a = try flood_fill(testing.allocator, &grid, 0, 0);
     try testing.expectEqual(4, result_a.?.area);
     try testing.expectEqual(10, result_a.?.perimiter);
+    try testing.expectEqual(4, result_a.?.num_corners);
 
     const result_b = try flood_fill(testing.allocator, &grid, 1, 0);
     try testing.expectEqual(4, result_b.?.area);
     try testing.expectEqual(8, result_b.?.perimiter);
+    try testing.expectEqual(4, result_b.?.num_corners);
 
     const result_c = try flood_fill(testing.allocator, &grid, 1, 2);
     try testing.expectEqual(4, result_c.?.area);
     try testing.expectEqual(10, result_c.?.perimiter);
+    try testing.expectEqual(8, result_c.?.num_corners);
 
     const result_d = try flood_fill(testing.allocator, &grid, 1, 3);
     try testing.expectEqual(1, result_d.?.area);
     try testing.expectEqual(4, result_d.?.perimiter);
+    try testing.expectEqual(4, result_d.?.num_corners);
 
     const result_e = try flood_fill(testing.allocator, &grid, 3, 0);
     try testing.expectEqual(3, result_e.?.area);
     try testing.expectEqual(8, result_e.?.perimiter);
+    try testing.expectEqual(4, result_e.?.num_corners);
 }
 
 test "flood all" {
     var grid = try Grid(Cell).init(testing.allocator, EXAMPLE);
     defer grid.deinit();
 
-    try testing.expectEqual(140, try compute_total_price(testing.allocator, &grid));
+    try testing.expectEqual(140, try compute_total_price(testing.allocator, &grid, false));
 }
 
 test "flood all big example" {
@@ -247,5 +299,42 @@ test "flood all big example" {
     var grid = try Grid(Cell).init(testing.allocator, example);
     defer grid.deinit();
 
-    try testing.expectEqual(1930, try compute_total_price(testing.allocator, &grid));
+    try testing.expectEqual(1930, try compute_total_price(testing.allocator, &grid, false));
+}
+
+test "nested plots" {
+    const example =
+        \\OOOOO
+        \\OXOXO
+        \\OOOOO
+        \\OXOXO
+        \\OOOOO
+    ;
+    var grid = try Grid(Cell).init(testing.allocator, example);
+    defer grid.deinit();
+
+    const result_a = try flood_fill(testing.allocator, &grid, 1, 1);
+    try testing.expectEqual(1, result_a.?.area);
+    try testing.expectEqual(4, result_a.?.perimiter);
+    try testing.expectEqual(4, result_a.?.num_corners);
+
+    const result_b = try flood_fill(testing.allocator, &grid, 3, 1);
+    try testing.expectEqual(1, result_b.?.area);
+    try testing.expectEqual(4, result_b.?.perimiter);
+    try testing.expectEqual(4, result_b.?.num_corners);
+
+    const result_c = try flood_fill(testing.allocator, &grid, 1, 3);
+    try testing.expectEqual(1, result_c.?.area);
+    try testing.expectEqual(4, result_c.?.perimiter);
+    try testing.expectEqual(4, result_c.?.num_corners);
+
+    const result_d = try flood_fill(testing.allocator, &grid, 3, 3);
+    try testing.expectEqual(1, result_d.?.area);
+    try testing.expectEqual(4, result_d.?.perimiter);
+    try testing.expectEqual(4, result_d.?.num_corners);
+
+    const result_o = try flood_fill(testing.allocator, &grid, 0, 0);
+    try testing.expectEqual(21, result_o.?.area);
+    try testing.expectEqual(36, result_o.?.perimiter);
+    try testing.expectEqual(20, result_o.?.num_corners);
 }
