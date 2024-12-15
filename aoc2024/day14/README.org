@@ -1,0 +1,8 @@
+#+title: Restroom Redoubt
+
+For Part1 I just mathematically computed the positions of the robots since it's
+just a modulo function.
+
+For Part2 since I had no idea what the answer looked like I printed every frame
+to terminal and searched for a line containing many ######## in a row. This
+found it fairly fast.
