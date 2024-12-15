@@ -1,0 +1,52 @@
+#+title: Claw Contraption
+
+Part1 and part2 is solved analytically in the same way, except for the price
+increase of part2.
+
+The system of equations is as follows:
+
+\begin{equation*}
+\begin{cases}
+a_{n} \cdot a_{x} + b_{n} \cdot b_{x} = p_{x} \\
+a_{n} \cdot a_{y} + b_{n} \cdot b_{y} = p_{y}
+\end{cases}
+\end{equation*}
+
+For the problem to make sense, we assume there is either 0 solutions or a single
+solution to the problem.
+
+To solve for $b_{n}$:
+
+- Multiply the first equation by $a_{y}$ and the second by $a_{x}$ to eliminate $a_{n}$:
+  $$
+  (a_{n} \cdot a_{x} + b_{n} \cdot b_{x}) \cdot a_{y} = p_{x} \cdot a_{y}
+  $$
+  $$
+  (a_{n} \cdot a_{y} + b_{n} \cdot b_{y}) \cdot a_{x} = p_{y} \cdot a_{x}
+  $$
+
+- Subtract the equations:
+  $$
+  b_{n} \cdot (b_{x} \cdot a_{y} - b_{y} \cdot a_{x}) = p_{x} \cdot a_{y} - p_{y} \cdot a_{x}
+  $$
+
+- Therefore, we solve for $b_{n}$:
+  $$
+  b_{n} = \frac{p_{x} \cdot a_{y} - p_{y} \cdot a_{x}}{b_{x} \cdot a_{y} - b_{y} \cdot a_{x}}
+  $$
+
+To solve for $a_{n}$:
+
+- Substitute $b_{n}$ back into the first equation:
+  $$
+  a_{n} \cdot a_{x} + b_{n} \cdot b_{x} = p_{x}
+  $$
+
+  $$
+  a_{n} \cdot a_{x} = p_{x} - b_{n} \cdot b_{x}
+  $$
+
+- Therefore, we solve for $a_{n}$:
+  $$
+  a_{n} = \frac{p_{x} - b_{n} \cdot b_{x}}{a_{x}}
+  $$
