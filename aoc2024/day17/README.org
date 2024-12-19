@@ -1,0 +1,12 @@
+#+title: Chronospatial Computer
+
+Part1 is simply implementing the ISA.
+
+Part2 required realizing that for the specific input program each loop iteration
+checks an independent 3 bits of A. Thus in order to compute the quite value, we
+can find all values 0..8 that produce each output.
+
+One caviat is that there can be multiple quines and we need the smallest one, so
+I keep track of them for the next stage with a stack. To avoid mutating the
+stack I have two stacks the each output swap pointers to avoid extra
+allocations.
