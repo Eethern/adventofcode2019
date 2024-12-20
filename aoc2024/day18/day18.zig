@@ -48,6 +48,7 @@ fn Grid(comptime T: type) type {
         width: usize,
         height: usize,
         data: std.ArrayList(T),
+        max_time: usize,
 
         pub fn from_bytes(allocator: std.mem.Allocator, bytes: []const u8, width: usize, height: usize) !Self {
             var data = std.ArrayList(T).init(allocator);
@@ -67,6 +68,7 @@ fn Grid(comptime T: type) type {
                 .width = width,
                 .height = height,
                 .data = data,
+                .max_time = time,
             };
         }
 
@@ -115,14 +117,15 @@ const Visit = struct { vertex: Vec2, dist: usize, dir: Dir };
 
 pub fn visit_order(ctx: void, a: Visit, b: Visit) std.math.Order {
     _ = ctx;
-    return std.math.order(b.dist, a.dist);
+    return std.math.order(a.dist, b.dist);
 }
 
-fn dijkstras(allocator: std.mem.Allocator, start: Vec2, grid: *const Grid(Cell), max_time: usize) !std.AutoHashMap(Vec2, usize) {
+fn dijkstras(allocator: std.mem.Allocator, start: Vec2, end: Vec2, grid: *const Grid(Cell), max_time: usize, part2: bool) !?usize {
     var frontier = std.PriorityDequeue(Visit, void, visit_order).init(allocator, undefined);
     defer frontier.deinit();
     // to be returned!
     var distances = std.AutoHashMap(Vec2, usize).init(allocator);
+    defer distances.deinit();
 
     try distances.put(start, 0);
     try frontier.add(Visit{ .vertex = start, .dist = 0, .dir = .RIGHT });
@@ -137,7 +140,11 @@ fn dijkstras(allocator: std.mem.Allocator, start: Vec2, grid: *const Grid(Cell),
             if (grid.in_bounds(neighbor.row, neighbor.col)) {
                 const new_distance = next.dist + 1;
                 if (grid.at_vec2(neighbor)) |c| {
-                    if (c.value == '#' and (new_distance > c.time or c.time < max_time)) continue;
+                    if (part2) {
+                        if (c.value == '#' and c.time < max_time) continue;
+                    } else {
+                        if (c.value == '#' and (new_distance > c.time or c.time < max_time)) continue;
+                    }
                 } else continue;
 
                 const neighbor_dist = distances.get(neighbor) orelse std.math.maxInt(usize);
@@ -148,7 +155,18 @@ fn dijkstras(allocator: std.mem.Allocator, start: Vec2, grid: *const Grid(Cell),
             }
         }
     }
-    return distances;
+    return distances.get(end);
+}
+
+fn find_first_problematic_byte(allocator: std.mem.Allocator, grid: *const Grid(Cell), end: Vec2) !usize {
+    var t: usize = 0;
+    while (t < grid.max_time) : (t += 1) {
+        const result = try dijkstras(allocator, Vec2{ .row = 0, .col = 0 }, end, grid, t, true);
+        if (result == null) {
+            break;
+        }
+    }
+    return t;
 }
 
 fn read_file(allocator: std.mem.Allocator, filename: []const u8) ![]u8 {
@@ -163,6 +181,18 @@ fn read_file(allocator: std.mem.Allocator, filename: []const u8) ![]u8 {
     return buff;
 }
 
+fn get_coordinate(bytes: []const u8, time: usize) ?[]const u8 {
+    var line_it = std.mem.splitScalar(u8, bytes, '\n');
+    var t: usize = 0;
+    while (line_it.next()) |line| : (t += 1) {
+        if (t + 1 == time) {
+            return line;
+        }
+    }
+
+    return null;
+}
+
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
@@ -174,10 +204,14 @@ pub fn main() !void {
     var grid = try Grid(Cell).from_bytes(allocator, buff, 71, 71);
     defer grid.deinit();
 
-    var result = try dijkstras(allocator, Vec2{ .row = 0, .col = 0 }, &grid, 1024);
-    defer result.deinit();
-    const part1_answer = result.get(Vec2{ .row = 70, .col = 70 });
-    print("Part1: {?}\n", .{part1_answer});
+    {
+        const part1_answer = try dijkstras(allocator, Vec2{ .row = 0, .col = 0 }, Vec2{ .row = 70, .col = 70 }, &grid, 1024, false);
+        print("Part1: {}\n", .{part1_answer.?});
+    }
+
+    const t: usize = try find_first_problematic_byte(allocator, &grid, Vec2{ .row = 70, .col = 70 });
+    const part2_answer = get_coordinate(buff, t).?;
+    print("Part2: {s}\n", .{part2_answer});
 }
 
 const EXAMPLE =
@@ -226,13 +260,11 @@ test "dijkstras" {
     var grid = try Grid(Cell).from_bytes(testing.allocator, EXAMPLE, 7, 7);
     defer grid.deinit();
 
-    var result = try dijkstras(testing.allocator, Vec2{ .row = 0, .col = 0 }, &grid, 12);
-    defer result.deinit();
-    var it = result.iterator();
-    grid.display();
-    while (it.next()) |*entry| {
-        print("{} - {}\n", .{ entry.key_ptr.*, entry.value_ptr.* });
-    }
-    const num_steps = result.get(Vec2{ .row = 6, .col = 6 });
+    const num_steps = try dijkstras(testing.allocator, Vec2{ .row = 0, .col = 0 }, Vec2{ .row = 6, .col = 6 }, &grid, 12, false);
     try testing.expectEqual(22, num_steps);
+
+    const t: usize = try find_first_problematic_byte(testing.allocator, &grid, Vec2{ .row = 6, .col = 6 });
+    try testing.expectEqual(21, t);
+    const coordinate = get_coordinate(EXAMPLE, t).?;
+    try testing.expectEqualStrings("6,1", coordinate);
 }

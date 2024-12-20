@@ -1,0 +1,8 @@
+#+title: RAM Run
+
+Part1 is just a repeat of a previous days' Dijkstra's, except the graph now
+mutates over time. This means part of whether we are allowed to move depends on
+how many steps we've already taken (i.e. dist).
+
+I brute-forced part2 by repeating the search for each possible time, and
+detecting whenever there no longer was a path from start to finish.
