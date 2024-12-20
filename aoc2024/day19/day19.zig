@@ -84,7 +84,22 @@ fn read_file(allocator: std.mem.Allocator, filename: []const u8) ![]u8 {
     return buff;
 }
 
-fn count_possible_designs(problem: *const Problem, memory: *Memory) !usize {
+fn count_possible_designs(problem: *const Problem, memory: *Memory) ![2]usize {
+    var num_possible: usize = 0;
+    var num_paths: usize = 0;
+    for (problem.designs.items) |design| {
+        memory.clearAndFree();
+        const state = State{
+            .cursor = 0,
+        };
+        const n = try count_paths_rec(design, state, &problem.towels, memory);
+        num_possible += if (n > 0) 1 else 0;
+        num_paths += n;
+    }
+    return .{ num_possible, num_paths };
+}
+
+fn count_number_of_designs(problem: *const Problem, memory: *Memory) !usize {
     var num_possible: usize = 0;
     for (problem.designs.items) |design| {
         memory.clearAndFree();
@@ -109,9 +124,10 @@ pub fn main() !void {
     var memory = Memory.init(allocator);
     defer memory.deinit();
 
-    const part1_answer = try count_possible_designs(&problem, &memory);
+    const part1_answer, const part2_answer = try count_possible_designs(&problem, &memory);
 
     print("Part1: {}\n", .{part1_answer});
+    print("Part2: {}\n", .{part2_answer});
 }
 
 const EXAMPLE =
@@ -173,5 +189,7 @@ test "solve_problems" {
     var memory = Memory.init(testing.allocator);
     defer memory.deinit();
 
-    try testing.expectEqual(6, count_possible_designs(&problem, &memory));
+    const num_possible_designs, const num_permutations = try count_possible_designs(&problem, &memory);
+    try testing.expectEqual(6, num_possible_designs);
+    try testing.expectEqual(16, num_permutations);
 }

@@ -1,0 +1,8 @@
+#+title: Linen Layout
+
+Part1 is a dynamic programming path counting algorithm. Basically we recursively
+count up the number of paths that reach the start node. The answer is the number
+of designs with more than 0 possible paths.
+
+Because part1 already counted the number of paths, we already have the solution
+for part2.
