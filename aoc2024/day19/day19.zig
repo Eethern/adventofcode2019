@@ -99,18 +99,6 @@ fn count_possible_designs(problem: *const Problem, memory: *Memory) ![2]usize {
     return .{ num_possible, num_paths };
 }
 
-fn count_number_of_designs(problem: *const Problem, memory: *Memory) !usize {
-    var num_possible: usize = 0;
-    for (problem.designs.items) |design| {
-        memory.clearAndFree();
-        const state = State{
-            .cursor = 0,
-        };
-        num_possible += if (try count_paths_rec(design, state, &problem.towels, memory) > 0) 1 else 0;
-    }
-    return num_possible;
-}
-
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
