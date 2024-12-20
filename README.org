@@ -1,4 +1,25 @@
-
 * Advent of code
+My solutions to Advent of Code over the years. Generally I don't go for
+leaderboard times since I value code quality over speed. I also tend to learn
+languages through AoC, so speed would never work out anyway.
+
 ** 2019
-Did half of it, then got busy with stuff.
+My first year, I only managed 10 days of it. I will need to return to this one.
+It was written in very poor python.
+
+** 2020
+Went back to this year (also in C++).
+
+** 2021
+My second AoC and first time ever using Rust.
+
+** 2022
+Third AoC, again in Rust because the previous year was so much fun.
+
+** 2023
+This year I decided to learn C++ for real. I had most issues with string
+parsing, so I ended up making a nice string view library for doing most
+of that work.
+
+** 2024
+First time using Zig. I'm a fan.
