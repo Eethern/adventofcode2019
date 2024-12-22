@@ -1,0 +1,15 @@
+#+title: Race Condition
+
+For this problem I reused the Dijkstra's algorithm from a previous day to find
+the times from the start position to any reachable position. This version also
+stores the previous node for each destination, enabling backtracking to
+construct the full path later.
+
+For part1 we can backtrack on the path and try enabling the chat at the
+cell. We can compute where we could end up by cheating and check the times map
+computed above to determine the potential gain from that cheat. These gains are
+used as index to a count array.
+
+Part2 is a generalization of the above, except now the "kernel" over every
+position on the path is a circular one. Since a unique cheat is defined by the
+start and end position, this counts each cheat correctly.

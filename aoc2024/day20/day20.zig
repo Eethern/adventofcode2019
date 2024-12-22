@@ -142,7 +142,7 @@ fn can_traverse(grid: *const Grid(u8), next: Vec2) Move {
 
 pub fn state_cmp(ctx: void, a: State, b: State) std.math.Order {
     _ = ctx;
-    return std.math.order(b.distance, a.distance);
+    return std.math.order(a.distance, b.distance);
 }
 
 fn dijkstras(allocator: std.mem.Allocator, grid: *const Grid(u8), start_state: State) !std.AutoHashMap(Vec2, State) {
@@ -162,8 +162,9 @@ fn dijkstras(allocator: std.mem.Allocator, grid: *const Grid(u8), start_state: S
                 .distance = curr.distance + 1,
             };
 
-            if (can_traverse(grid, next_state.pos) == .NotAllowed) {
-                continue;
+            switch (can_traverse(grid, next_state.pos)) {
+                .NotAllowed => continue,
+                .Allowed => {},
             }
 
             const best_dist: usize = if (distances.get(next_state.pos)) |d| d.distance else std.math.maxInt(usize);
@@ -176,27 +177,53 @@ fn dijkstras(allocator: std.mem.Allocator, grid: *const Grid(u8), start_state: S
     return distances;
 }
 
-fn calculate_cheat_gains(allocator: std.mem.Allocator, grid: *const Grid(u8), distances: *const std.AutoHashMap(Vec2, State)) ![]usize {
-    // Savings gained by cheating at given position
-    const worst_score = distances.get(grid.end).?.distance;
-    var cheat_map: []usize = try allocator.alloc(usize, worst_score);
-    @memset(cheat_map, 0);
+fn check_cheats_from_source(distances: *const std.AutoHashMap(Vec2, State), src_state: State, cheat_tokens: usize, cheat_map: []usize) void {
+    const cheat_tokens_i32 = @as(i32, @intCast(cheat_tokens));
+    var drow = -cheat_tokens_i32;
+    while (drow <= cheat_tokens_i32) : (drow += 1) {
+        var dcol = -cheat_tokens_i32;
+        while (dcol <= cheat_tokens_i32) : (dcol += 1) {
+            if (@abs(drow) + @abs(dcol) > cheat_tokens_i32) continue;
+            const destination_pos = Vec2{ .row = src_state.pos.row + drow, .col = src_state.pos.col + dcol };
+            if (distances.get(destination_pos)) |dest_state| {
+                const manhattan_distance = @as(usize, @intCast(@abs(drow) + @abs(dcol)));
+                const cheat_distance = src_state.distance + manhattan_distance;
 
-    var node = distances.get(grid.end).?;
-    while (node.prev) |_| : (node = distances.get(node.prev.?).?) {
-        // try cheating
-        for (ALL_DIRS) |dir| {
-            // Assume straight lines (L shapes will never be beneficial)
-            const next_pos = node.pos.move(dir).move(dir);
-            if (can_traverse(grid, next_pos) == .NotAllowed) continue;
-
-            if (distances.get(next_pos)) |next_node| {
-                if (node.distance + 2 < next_node.distance) {
-                    cheat_map[next_node.distance - node.distance - 2] += 1;
+                if (cheat_distance < dest_state.distance) {
+                    const gain = dest_state.distance - cheat_distance;
+                    cheat_map[gain] += 1;
                 }
             }
         }
     }
+}
+
+fn calculate_cheat_gains(
+    allocator: std.mem.Allocator,
+    grid: *const Grid(u8),
+    non_cheat_distances: *const std.AutoHashMap(Vec2, State),
+    cheat_tokens: usize,
+) ![]usize {
+    // Savings gained by cheating at given position
+    const worst_score = non_cheat_distances.get(grid.end).?.distance;
+
+    const cheat_map: []usize = try allocator.alloc(usize, worst_score);
+    @memset(cheat_map, 0);
+
+    var node = non_cheat_distances.get(grid.end).?;
+    while (node.prev) |_| : (node = non_cheat_distances.get(node.prev.?).?) {
+        check_cheats_from_source(non_cheat_distances, node, cheat_tokens, cheat_map);
+    }
+
+    // Start node does not get included in the above while loop, so do
+    // it manually.
+    check_cheats_from_source(
+        non_cheat_distances,
+        non_cheat_distances.get(grid.start).?,
+        cheat_tokens,
+        cheat_map,
+    );
+
     return cheat_map;
 }
 
@@ -232,15 +259,24 @@ pub fn main() !void {
     var distances = try dijkstras(allocator, &grid, start_state);
     defer distances.deinit();
 
-    const cheat_map = try calculate_cheat_gains(allocator, &grid, &distances);
-    defer allocator.free(cheat_map);
+    const cheat_map_part1 = try calculate_cheat_gains(allocator, &grid, &distances, 2);
+    defer allocator.free(cheat_map_part1);
 
     var part1_answer: usize = 0;
-    for (cheat_map[100..]) |item| {
+    for (cheat_map_part1[100..]) |item| {
         part1_answer += item;
     }
 
+    const cheat_map_part2 = try calculate_cheat_gains(allocator, &grid, &distances, 20);
+    defer allocator.free(cheat_map_part2);
+
+    var part2_answer: usize = 0;
+    for (cheat_map_part2[100..]) |item| {
+        part2_answer += item;
+    }
+
     std.debug.print("Part1: {}\n", .{part1_answer});
+    std.debug.print("Part2: {}\n", .{part2_answer});
 }
 
 const EXAMPLE =
@@ -285,32 +321,13 @@ test "can_traverse" {
     try testing.expectEqual(.NotAllowed, can_traverse(&grid, state.pos.move(.DOWN)));
     try testing.expectEqual(.NotAllowed, can_traverse(&grid, state.pos.move(.LEFT)));
     try testing.expectEqual(.NotAllowed, can_traverse(&grid, state.pos.move(.RIGHT)));
+    try testing.expectEqual(.NotAllowed, can_traverse(&grid, state.pos.move(.LEFT).move(.LEFT)));
 }
 
 test "find_shortest_path_length" {
     var grid = try Grid(u8).from_bytes(testing.allocator, EXAMPLE);
     defer grid.deinit();
 
-    // No cheats
-    {
-        const start_state = State{
-            .pos = grid.start,
-            .prev = null,
-            .distance = 0,
-        };
-
-        var distances = try dijkstras(testing.allocator, &grid, start_state);
-        defer distances.deinit();
-        try testing.expectEqual(84, distances.get(grid.end).?.distance);
-    }
-}
-
-
-test "cheat_map gain" {
-    var grid = try Grid(u8).from_bytes(testing.allocator, EXAMPLE);
-    defer grid.deinit();
-
-    // No cheats
     const start_state = State{
         .pos = grid.start,
         .prev = null,
@@ -319,14 +336,26 @@ test "cheat_map gain" {
 
     var distances = try dijkstras(testing.allocator, &grid, start_state);
     defer distances.deinit();
+    try testing.expectEqual(84, distances.get(grid.end).?.distance);
+}
 
-    const cheat_map = try calculate_cheat_gains(testing.allocator, &grid, &distances);
+test "cheat_map gain" {
+    var grid = try Grid(u8).from_bytes(testing.allocator, EXAMPLE);
+    defer grid.deinit();
+
+    const start_state = State{
+        .pos = grid.start,
+        .prev = null,
+        .distance = 0,
+    };
+    var distances = try dijkstras(testing.allocator, &grid, start_state);
+    defer distances.deinit();
+
+    const cheat_map = try calculate_cheat_gains(testing.allocator, &grid, &distances, 2);
     defer testing.allocator.free(cheat_map);
 
-    // We don't catch this one because of only doing straight lines
-    // try testing.expectEqual(14, cheat_map[2]);
-    // The first (4) valued cheat is not found for some reason
-    // try testing.expectEqual(14, cheat_map[4]);
+    try testing.expectEqual(14, cheat_map[2]);
+    try testing.expectEqual(14, cheat_map[4]);
     try testing.expectEqual(2, cheat_map[6]);
     try testing.expectEqual(4, cheat_map[8]);
     try testing.expectEqual(2, cheat_map[10]);
@@ -336,5 +365,35 @@ test "cheat_map gain" {
     try testing.expectEqual(1, cheat_map[38]);
     try testing.expectEqual(1, cheat_map[40]);
     try testing.expectEqual(1, cheat_map[64]);
+}
 
+test "cheat_map gain part2" {
+    var grid = try Grid(u8).from_bytes(testing.allocator, EXAMPLE);
+    defer grid.deinit();
+
+    const start_state = State{
+        .pos = grid.start,
+        .prev = null,
+        .distance = 0,
+    };
+    var distances = try dijkstras(testing.allocator, &grid, start_state);
+    defer distances.deinit();
+
+    const cheat_map = try calculate_cheat_gains(testing.allocator, &grid, &distances, 20);
+    defer testing.allocator.free(cheat_map);
+
+    try testing.expectEqual(32, cheat_map[50]);
+    try testing.expectEqual(31, cheat_map[52]);
+    try testing.expectEqual(29, cheat_map[54]);
+    try testing.expectEqual(39, cheat_map[56]);
+    try testing.expectEqual(25, cheat_map[58]);
+    try testing.expectEqual(23, cheat_map[60]);
+    try testing.expectEqual(20, cheat_map[62]);
+    try testing.expectEqual(19, cheat_map[64]);
+    try testing.expectEqual(12, cheat_map[66]);
+    try testing.expectEqual(14, cheat_map[68]);
+    try testing.expectEqual(12, cheat_map[70]);
+    try testing.expectEqual(22, cheat_map[72]);
+    try testing.expectEqual(4, cheat_map[74]);
+    try testing.expectEqual(3, cheat_map[76]);
 }
