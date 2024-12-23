@@ -1,0 +1,22 @@
+#+title: Keypad Conundrum
+
+Not happy with this day, but I eventually got it working. In order to know what
+the cost (or shortest sequence of moves) is to produce a number on the door
+keypad, we need to know how that move translates down the chain of robots. This
+result in a 3D dynamic programming problem (state =src_key=, =dest_key= and =pad_idx=).
+
+In order to explore this problem, we have to generate all possible permutations
+of a binary sequence. The 0 and 1 in this sequence represent movement along
+either 2D axis of the numpad. This is fairly simple to do, just loop over
+$2^(d_x + d_y)$. I don't love the amount of memory allocation I had to do here
+to keep track of all these strings of moves.
+
+Given the possible sequences, we just recursively compute the costs of
+1. Moving from the start =A= to the first part of the path
+2. Moving from position =i-1= to =i=
+3. Moving from position =i= to the end =A=.
+for each permutation. We want the minimal cost among all permutations.
+
+Then to speed this up just memoize it. I used a hashmap here but the better
+solution is to use a 3D array, since we have a pretty good idea of how large the
+memory has to be.
