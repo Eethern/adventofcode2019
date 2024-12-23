@@ -1,0 +1,17 @@
+#+title: Monkey Market
+
+For part1 we just iterate the hash functions.
+
+Part2 requires us to find the best 4-sized window of differences that yields the
+best price across all buyers. The simplest way to do this is to implement a
+sliding window across the 2000 hash iterations.
+
+Because we're looking for first time the window shows up, we maintain two
+hashmaps:
+1. local_scores: Each buyer has the first price of every window encountered
+   during the 2000 steps.
+2. global_scores: Each local_scores entry is aggregated into the global_scores
+   so that given any window we can find the total number of bananas.
+
+The global_scores entry with the largest prices is the best window to use, and
+also contains the answer to part2.
