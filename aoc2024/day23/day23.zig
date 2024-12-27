@@ -100,6 +100,24 @@ fn find_small_cliques(allocator: std.mem.Allocator, graph: *const Graph) !std.Au
     return cliques;
 }
 
+fn string_less_than(_: void, lhs: [2]u8, rhs: [2]u8) bool {
+    return std.mem.order(u8, &lhs, &rhs) == .lt;
+}
+
+fn construct_password(allocator: std.mem.Allocator, node_set: *const std.AutoHashMap(u16, void)) !std.ArrayList([2]u8) {
+    var names = std.ArrayList([2]u8).init(allocator);
+
+    var node_set_iter = node_set.keyIterator();
+    while (node_set_iter.next()) |key| {
+        const name = unhash_node_name(key.*);
+        try names.append(name);
+    }
+
+    std.mem.sort([2]u8, names.items, {}, string_less_than);
+
+    return names;
+}
+
 fn read_file(allocator: std.mem.Allocator, filename: []const u8) ![]u8 {
     const file = try std.fs.cwd().openFile(
         filename,
@@ -138,6 +156,32 @@ pub fn main() !void {
     }
 
     std.debug.print("Part1 answer: {}\n", .{num_t_cliques});
+
+    var maximum_clique = try find_maximum_clique(allocator, &graph);
+    defer maximum_clique.deinit();
+    var password = try construct_password(allocator, &maximum_clique);
+    defer password.deinit();
+    std.debug.print("Part2 answer: ", .{});
+    for (0.., password.items) |i, n| {
+        std.debug.print("{s}", .{n});
+        if (i < password.items.len - 1) {
+            std.debug.print(",", .{});
+        }
+    }
+    std.debug.print("\n", .{});
+}
+
+fn intersection(
+    allocator: std.mem.Allocator,
+    a: *const std.AutoHashMap(u16, void),
+    b: *const std.AutoHashMap(u16, void),
+) !std.AutoHashMap(u16, void) {
+    var out = std.AutoHashMap(u16, void).init(allocator);
+    var a_iter = a.keyIterator();
+    while (a_iter.next()) |a_key| {
+        if (b.contains(a_key.*)) try out.put(a_key.*, undefined);
+    }
+    return out;
 }
 
 // // algorithm BronKerbosch1(R, P, X) is
@@ -147,59 +191,74 @@ pub fn main() !void {
 // //         BronKerbosch1(R ⋃ {v}, P ⋂ N(v), X ⋂ N(v))
 // //         P := P \ {v}
 // //         X := X ⋃ {v}
-// fn bron_kerbosch(
-//     graph: *const Graph,
-//     R: *std.ArrayList(u16),
-//     P: *std.ArrayList(u16),
-//     X: *std.ArrayList(u16),
-//     cliques: *std.ArrayList(Clique),
-// ) !void {
-//     if (P.items.len == 0 and X.items.len == 0) {
-//         // If P and X are both empty, R is a maximal clique
-//         const clique = Clique{
-//             .a = if (R.items.len > 0) R.items[0] else 0,
-//             .b = if (R.items.len > 1) R.items[1] else 0,
-//             .c = if (R.items.len > 2) R.items[2] else 0,
-//         };
-//         try cliques.append(clique);
-//     }
+fn bron_kerbosch(
+    allocator: std.mem.Allocator,
+    graph: *const Graph,
+    R: *std.AutoHashMap(u16, void),
+    P: *std.AutoHashMap(u16, void),
+    X: *std.AutoHashMap(u16, void),
+    max_clique: *std.AutoHashMap(u16, void),
+) !void {
+    if (P.count() == 0 and X.count() == 0) {
+        // If P and X are both empty, R is a maximal clique. Maybe report it
+        if (max_clique.count() < R.count()) {
+            max_clique.clearAndFree();
+            var r_iter = R.keyIterator();
+            while (r_iter.next()) |key| {
+                try max_clique.put(key.*, undefined);
+            }
+            return;
+        }
+    }
 
-//     for (P.items) |v| {
-//         // Temporarily add v to R
-//         try R.append(v);
+    var P_copy = try P.clone();
+    defer P_copy.deinit();
+    var P_iter = P_copy.keyIterator();
+    while (P_iter.next()) |v| {
+        try R.put(v.*, undefined);
 
-//         // Neighbors of v in the graph
-//         const neighbors = graph.adj.get(v).?;
+        const neighbors = graph.adj.getPtr(v.*).?;
+        var N = std.AutoHashMap(u16, void).init(allocator);
+        defer N.deinit();
+        for (neighbors.items) |n| {
+            try N.put(n, undefined);
+        }
 
-//         // Create new sets for P ∩ neighbors(v) and X ∩ neighbors(v)
-//         var newP = try filterIntersect(P, &neighbors);
-//         defer newP.deinit();
+        // This is stupidly ugly, find a nicer way to manage memory.
+        // A nicer way is a bitmask to store these sets. Looping over
+        // the full bitmask is likely more efficient than doing the
+        // amortized hash lookup, and it's definitely faster than
+        // allocating entire new hashmaps.
+        var new_P = try intersection(allocator, P, &N);
+        var new_X = try intersection(allocator, X, &N);
+        try bron_kerbosch(allocator, graph, R, &new_P, &new_X, max_clique);
+        new_X.deinit();
+        new_P.deinit();
 
-//         var newX = try filterIntersect(X, &neighbors);
-//         defer newX.deinit();
+        _ = P.remove(v.*);
+        try X.put(v.*, undefined);
+        _ = R.remove(v.*);
+    }
+}
 
-//         // Recurse with updated sets
-//         try bron_kerbosch(graph, R, &newP, &newX, cliques);
+fn find_maximum_clique(allocator: std.mem.Allocator, graph: *const Graph) !std.AutoHashMap(u16, void) {
+    var max_clique = std.AutoHashMap(u16, void).init(allocator);
+    var R = std.AutoHashMap(u16, void).init(allocator);
+    defer R.deinit();
+    var P = std.AutoHashMap(u16, void).init(allocator);
+    defer P.deinit();
 
-//         // Undo the addition of v to R
-//         _ = R.pop();
+    var graph_iter = graph.adj.keyIterator();
+    while (graph_iter.next()) |key| {
+        try P.put(key.*, undefined);
+    }
 
-//         // Move v from P to X
-//         try P.remove(v);
-//         try X.append(v);
-//     }
-// }
+    var X = std.AutoHashMap(u16, void).init(allocator);
+    defer X.deinit();
+    try bron_kerbosch(allocator, graph, &R, &P, &X, &max_clique);
 
-// fn filterIntersect(original: *std.ArrayList(u16), neighbors: *const std.ArrayList(u16)) !std.ArrayList(u16) {
-//     var filtered = std.ArrayList(u16).init(original.allocator);
-//     defer filtered.deinit();
-//     for (original.items) |item| {
-//         if (std.mem.indexOf(u16, neighbors, item) != null) {
-//             try filtered.append(item);
-//         }
-//     }
-//     return filtered;
-// }
+    return max_clique;
+}
 
 const EXAMPLE =
     \\kh-tc
@@ -252,26 +311,9 @@ test "find_small_cliques" {
     try testing.expectEqual(12, cliques.count());
 }
 
-// test "bron kerbosch" {
-//     var graph = try Graph.from_bytes(testing.allocator, EXAMPLE);
-//     defer graph.deinit();
-
-//     var R = std.ArrayList(u16).init(testing.allocator);
-//     defer R.deinit();
-
-//     var P = std.ArrayList(u16).init(testing.allocator);
-//     defer P.deinit();
-
-//     var X = std.ArrayList(u16).init(testing.allocator);
-//     defer X.deinit();
-
-//     var cliques = std.ArrayList(Clique).init(testing.allocator);
-//     defer cliques.deinit();
-
-//     try bron_kerbosch(&graph, &R, &P, &X, &cliques);
-
-//     try testing.expectEqual(1, cliques.items.len);
-//     try testing.expectEqual(3, cliques.items[0].a);
-//     try testing.expectEqual(4, cliques.items[0].b);
-//     try testing.expectEqual(5, cliques.items[0].c);
-// }
+test "bron kerbosch" {
+    var graph = try Graph.from_bytes(testing.allocator, EXAMPLE);
+    defer graph.deinit();
+    var maximum_clique = try find_maximum_clique(testing.allocator, &graph);
+    defer maximum_clique.deinit();
+}
